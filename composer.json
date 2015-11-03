@@ -1,0 +1,34 @@
+{
+    "name": "arthem/graphql-mapper",
+    "description": "A GraphQL model mapper",
+    "type": "library",
+    "license": "BSD",
+    "homepage": "https://github.com/4rthem/graphql-mapper",
+    "keywords": [
+        "graphql",
+        "mapping"
+    ],
+    "require": {
+        "php": ">=5.4,<8.0-DEV",
+        "webonyx/graphql-php": "^0.4.0",
+        "symfony/property-access": "^2.7",
+        "doctrine/cache": "^1.5"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^4.7",
+        "doctrine/common": "^2.0"
+    },
+    "config": {
+        "bin-dir": "bin"
+    },
+    "autoload": {
+        "classmap": [
+            "src/"
+        ]
+    },
+    "autoload-dev": {
+        "classmap": [
+            "tests/"
+        ]
+    }
+}
