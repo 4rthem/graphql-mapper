@@ -27,6 +27,10 @@ abstract class FileDriver implements DriverInterface
      */
     protected function getFileContent($path)
     {
+        if (!is_file($path)) {
+            throw new \Exception(sprintf('File "%s" not found', $path));
+        }
+
         return file_get_contents($path);
     }
 

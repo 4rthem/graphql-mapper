@@ -2,84 +2,17 @@
 
 namespace Arthem\GraphQLMapper\Mapping;
 
-class Type
+class Type extends FieldContainer
 {
-    /**
-     * @var string
-     */
-    private $name;
-
-    /**
-     * @var string
-     */
-    private $description;
-
     /**
      * @var string
      */
     private $extends;
 
     /**
-     * @var Field[]
+     * @var array
      */
-    private $fields;
-
-    /**
-     * @return string
-     */
-    public function getName()
-    {
-        return $this->name;
-    }
-
-    /**
-     * @param string $name
-     * @return $this
-     */
-    public function setName($name)
-    {
-        $this->name = $name;
-
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getDescription()
-    {
-        return $this->description;
-    }
-
-    /**
-     * @param string $description
-     * @return $this
-     */
-    public function setDescription($description)
-    {
-        $this->description = $description;
-
-        return $this;
-    }
-
-    /**
-     * @return Field[]
-     */
-    public function getFields()
-    {
-        return $this->fields;
-    }
-
-    /**
-     * @param Field[] $fields
-     * @return $this
-     */
-    public function setFields(array $fields)
-    {
-        $this->fields = $fields;
-
-        return $this;
-    }
+    private $resolveConfig;
 
     /**
      * @return string
@@ -103,24 +36,30 @@ class Type
     /**
      * @return array
      */
+    public function getResolveConfig()
+    {
+        return $this->resolveConfig;
+    }
+
+    /**
+     * @param array $resolveConfig
+     * @return $this
+     */
+    public function setResolveConfig($resolveConfig)
+    {
+        $this->resolveConfig = $resolveConfig;
+
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
     public function toMapping()
     {
-        $fieldsMapping = [];
+        $mapping = parent::toMapping();
 
-        foreach ($this->fields as $field) {
-            $fieldsMapping[$field->getName()] = $field->toMapping();
-        }
-
-        $mapping = [
-            'name'        => $this->name,
-            'description' => $this->description,
-            'fields'      => $fieldsMapping,
-            'extends'     => $this->extends,
-        ];
-
-        if (null !== $this->extends) {
-            $mapping['extends'] = $this->extends;
-        }
+        $mapping['extends'] = $this->extends;
 
         return $mapping;
     }

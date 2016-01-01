@@ -1,7 +1,6 @@
 <?php
-
 namespace Arthem\GraphQLMapper\Mapping;
 
-class InterfaceType extends FieldContainer
+class Query extends FieldContainer
 {
 }

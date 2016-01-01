@@ -3,7 +3,7 @@
 namespace Arthem\GraphQLMapper;
 
 use Arthem\GraphQLMapper\Exception\QueryException;
-use Arthem\GraphQLMapper\Factory\SchemaFactory;
+use Arthem\GraphQLMapper\Schema\SchemaFactory;
 use GraphQL\Executor\ExecutionResult;
 use GraphQL\GraphQL;
 use GraphQL\Schema;

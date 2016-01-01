@@ -4,7 +4,7 @@ namespace Arthem\GraphQLMapper\Test;
 
 use Arthem\GraphQLMapper\Mapping\Field;
 use Arthem\GraphQLMapper\Mapping\InterfaceType;
-use Arthem\GraphQLMapper\Mapping\QuerySchema;
+use Arthem\GraphQLMapper\Mapping\Query;
 use Arthem\GraphQLMapper\Mapping\SchemaContainer;
 use Arthem\GraphQLMapper\Mapping\Type;
 
@@ -49,7 +49,7 @@ abstract class AbstractDriverTest extends \PHPUnit_Framework_TestCase
             ->setName('friends')
             ->setDescription('The user friends')
             ->setType('[User]')
-            ->setResolve('AppBundle\Entity\Friend');
+            ->setResolveConfig('AppBundle\Entity\Friend');
 
         $userType = new Type();
         $userType->setName('User')
@@ -91,7 +91,7 @@ abstract class AbstractDriverTest extends \PHPUnit_Framework_TestCase
         $adminField->setName('admin')
             ->setDescription('Admin description')
             ->setType('[User]')
-            ->setResolve('AppBundle:User')
+            ->setResolveConfig('AppBundle\Entity\User')
             ->setArguments([
                 $idArg,
             ]);
@@ -102,12 +102,12 @@ abstract class AbstractDriverTest extends \PHPUnit_Framework_TestCase
         $userField->setName('user')
             ->setDescription('User description')
             ->setType('User')
-            ->setResolve('AppBundle:User')
+            ->setResolveConfig('AppBundle\Entity\User')
             ->setArguments([
                 $idArg,
             ]);
 
-        $query = new QuerySchema();
+        $query = new Query();
         $query->setDescription('The root query description')
             ->setFields([
                 $adminField,

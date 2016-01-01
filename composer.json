@@ -2,21 +2,29 @@
     "name": "arthem/graphql-mapper",
     "description": "A GraphQL model mapper",
     "type": "library",
-    "license": "BSD",
+    "license": "MIT",
     "homepage": "https://github.com/4rthem/graphql-mapper",
+    "authors": [
+        {
+            "name": "Arthur de Moulins",
+            "email": "arthurdemoulins@gmail.com"
+        }
+    ],
     "keywords": [
         "graphql",
+        "model",
         "mapping"
     ],
     "require": {
-        "php": ">=5.4,<8.0-DEV",
-        "webonyx/graphql-php": "^0.4.0",
-        "symfony/property-access": "^2.7",
-        "doctrine/cache": "^1.5"
+        "php": ">=5.4",
+        "webonyx/graphql-php": "~0.5"
     },
     "require-dev": {
-        "phpunit/phpunit": "^4.7",
-        "doctrine/common": "^2.0"
+        "phpunit/phpunit": "~4.8",
+        "squizlabs/php_codesniffer": "^2.5"
+    },
+    "suggest": {
+        "doctrine/orm": "Use the Doctrine resolver"
     },
     "config": {
         "bin-dir": "bin"

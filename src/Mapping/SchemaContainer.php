@@ -14,11 +14,13 @@ class SchemaContainer
     private $interfaces = [];
 
     /**
-     * @var QuerySchema
+     * @var Query
      */
     private $querySchema;
 
-    // TODO
+    /**
+     * @var Query
+     */
     private $mutationSchema;
 
     /**
@@ -52,6 +54,22 @@ class SchemaContainer
     }
 
     /**
+     * @return Type
+     */
+    public function getType($name)
+    {
+        return $this->types[$name];
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasType($name)
+    {
+        return isset($this->types[$name]);
+    }
+
+    /**
      * @return InterfaceType[]
      */
     public function getInterfaces()
@@ -60,7 +78,7 @@ class SchemaContainer
     }
 
     /**
-     * @return QuerySchema
+     * @return Query
      */
     public function getQuerySchema()
     {
@@ -68,10 +86,10 @@ class SchemaContainer
     }
 
     /**
-     * @param QuerySchema $querySchema
+     * @param Query $querySchema
      * @return $this
      */
-    public function setQuerySchema(QuerySchema $querySchema)
+    public function setQuerySchema(Query $querySchema)
     {
         $this->querySchema = $querySchema;
 
@@ -79,7 +97,7 @@ class SchemaContainer
     }
 
     /**
-     * @return mixed
+     * @return Query
      */
     public function getMutationSchema()
     {
@@ -87,10 +105,10 @@ class SchemaContainer
     }
 
     /**
-     * @param mixed $mutationSchema
+     * @param Query $mutationSchema
      * @return $this
      */
-    public function setMutationSchema($mutationSchema)
+    public function setMutationSchema(Query $mutationSchema)
     {
         $this->mutationSchema = $mutationSchema;
 

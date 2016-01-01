@@ -34,7 +34,7 @@ query:
     fields:
         admin:
             description: Admin description
-            resolve: AppBundle:User
+            resolve: AppBundle\Entity\User
             type: "[User]"
             args:
                 id:
@@ -42,7 +42,7 @@ query:
                     type: Int
         user:
             description: User description
-            resolve: AppBundle:User
+            resolve: AppBundle\Entity\User
             type: "User"
             args:
                 id:

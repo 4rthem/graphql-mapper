@@ -4,32 +4,34 @@ namespace Arthem\GraphQLMapper\Mapping;
 
 use GraphQL\Type\Definition\Type as GQLType;
 
-class Field
+class Field extends AbstractType
 {
     /**
+     * The model field name
+     *
      * @var string
      */
-    private $name;
+    private $field;
 
     /**
      * @var string
-     */
-    private $description;
-
-    /**
-     * @var string|GQLType
      */
     private $type;
 
     /**
-     * @var string|callable
+     * @var callable|GQLType
      */
-    private $map;
+    private $resolvedType;
 
     /**
-     * @var string|callable
+     * @var callable
      */
     private $resolve;
+
+    /**
+     * @var array
+     */
+    private $resolveConfig = [];
 
     /**
      * @var Field[]
@@ -39,18 +41,18 @@ class Field
     /**
      * @return string
      */
-    public function getName()
+    public function getField()
     {
-        return $this->name;
+        return $this->field;
     }
 
     /**
-     * @param string $name
+     * @param string $field
      * @return $this
      */
-    public function setName($name)
+    public function setField($field)
     {
-        $this->name = $name;
+        $this->field = $field;
 
         return $this;
     }
@@ -58,32 +60,13 @@ class Field
     /**
      * @return string
      */
-    public function getDescription()
-    {
-        return $this->description;
-    }
-
-    /**
-     * @param string $description
-     * @return $this
-     */
-    public function setDescription($description)
-    {
-        $this->description = $description;
-
-        return $this;
-    }
-
-    /**
-     * @return string|GQLType
-     */
     public function getType()
     {
         return $this->type;
     }
 
     /**
-     * @param string|GQLType $type
+     * @param string $type
      * @return $this
      */
     public function setType($type)
@@ -94,26 +77,26 @@ class Field
     }
 
     /**
-     * @return string|callable
+     * @return callable|GQLType
      */
-    public function getMap()
+    public function getResolvedType()
     {
-        return $this->map;
+        return $this->resolvedType;
     }
 
     /**
-     * @param string|callable $map
+     * @param callable|GQLType $resolvedType
      * @return $this
      */
-    public function setMap($map)
+    public function setResolvedType($resolvedType)
     {
-        $this->map = $map;
+        $this->resolvedType = $resolvedType;
 
         return $this;
     }
 
     /**
-     * @return string|callable
+     * @return callable
      */
     public function getResolve()
     {
@@ -121,12 +104,42 @@ class Field
     }
 
     /**
-     * @param string|callable $resolve
+     * @param callable $resolve
      * @return $this
      */
     public function setResolve($resolve)
     {
         $this->resolve = $resolve;
+
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getResolveConfig()
+    {
+        return $this->resolveConfig;
+    }
+
+    /**
+     * @param array $resolveConfig
+     * @return $this
+     */
+    public function setResolveConfig($resolveConfig)
+    {
+        $this->resolveConfig = $resolveConfig;
+
+        return $this;
+    }
+
+    /**
+     * @param array $config
+     * @return $this
+     */
+    public function mergeRevolveConfig(array $config)
+    {
+        $this->resolveConfig = array_merge($this->resolveConfig, $config);
 
         return $this;
     }
@@ -151,29 +164,21 @@ class Field
     }
 
     /**
-     * @return array
+     * @return array<string,mixed>
      */
     public function toMapping()
     {
         $mapping = [
-            'name'        => $this->name,
-            'description' => $this->description,
-            'type'        => $this->type,
-        ];
+                'type'           => $this->resolvedType,
+                'resolve'        => $this->resolve,
+                'resolve_config' => $this->resolveConfig,
+            ] + parent::toMapping();
 
         if (!empty($this->arguments)) {
             $mapping['args'] = [];
             foreach ($this->arguments as $argument) {
                 $mapping['args'][$argument->getName()] = $argument->toMapping();
             }
-        }
-
-        if (null !== $this->resolve) {
-            $mapping['resolve'] = $this->resolve;
-        }
-
-        if (null !== $this->map) {
-            $mapping['map'] = $this->map;
         }
 
         return $mapping;

@@ -1,9 +1,11 @@
 <?php
 namespace Arthem\GraphQLMapper\Mapping\Driver;
 
+use Arthem\GraphQLMapper\Mapping\AbstractType;
 use Arthem\GraphQLMapper\Mapping\Field;
+use Arthem\GraphQLMapper\Mapping\FieldContainer;
 use Arthem\GraphQLMapper\Mapping\InterfaceType;
-use Arthem\GraphQLMapper\Mapping\QuerySchema;
+use Arthem\GraphQLMapper\Mapping\Query;
 use Arthem\GraphQLMapper\Mapping\SchemaContainer;
 use Arthem\GraphQLMapper\Mapping\Type;
 use Symfony\Component\Yaml\Yaml;
@@ -11,7 +13,7 @@ use Symfony\Component\Yaml\Yaml;
 class YamlDriver extends FileDriver
 {
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function load(SchemaContainer $schema)
     {
@@ -30,43 +32,40 @@ class YamlDriver extends FileDriver
     {
         $config = Yaml::parse($this->getFileContent($path));
 
-        foreach ($config as $type => $node) {
+        foreach ($config as $type => $mapping) {
             switch ($type) {
                 case 'query':
                     $querySchema = $schemaContainer->getQuerySchema();
                     if (null === $querySchema) {
-                        $querySchema = new QuerySchema();
+                        $querySchema = new Query();
                         $schemaContainer->setQuerySchema($querySchema);
                     }
 
-                    if (isset($node['description'])) {
-                        $querySchema->setDescription($node['description']);
+                    $this->populateFieldContainer($querySchema, $mapping);
+                    break;
+                case 'mutation':
+                    $mutationSchema = $schemaContainer->getMutationSchema();
+                    if (null === $mutationSchema) {
+                        $mutationSchema = new Query();
+                        $schemaContainer->setMutationSchema($mutationSchema);
                     }
 
-                    if (isset($node['fields'])) {
-                        $fields = [];
-                        foreach ($node['fields'] as $name => $fieldMapping) {
-                            $fields[] = $this->createField($name, $fieldMapping);
-                        }
-                        $querySchema->setFields($fields);
-                    }
-
+                    $this->populateFieldContainer($mutationSchema, $mapping);
                     break;
                 case 'types':
-                    foreach ($node as $name => $typeMapping) {
+                    foreach ($mapping as $name => $typeMapping) {
                         $type = $this->createType($name, $typeMapping);
                         $schemaContainer->addType($type);
                     }
                     break;
                 case 'interfaces':
-                    foreach ($node as $name => $interfaceMapping) {
+                    foreach ($mapping as $name => $interfaceMapping) {
                         $interface = $this->createInterface($name, $interfaceMapping);
                         $schemaContainer->addInterface($interface);
                     }
                     break;
                 default:
                     throw new \UnexpectedValueException(sprintf('Unsupported key "%s"'));
-                    break;
             }
         }
     }
@@ -79,23 +78,44 @@ class YamlDriver extends FileDriver
     private function createType($name, array $mapping)
     {
         $type = new Type();
-        $type->setName($name);
+        $type
+            ->setName($name)
+            ->setExtends(isset($mapping['extends']) ? $mapping['extends'] : null)
+            ->setResolveConfig(isset($mapping['resolve']) ? $mapping['resolve'] : []);
 
-        if (isset($mapping['extends'])) {
-            $type->setExtends($mapping['extends']);
-        }
+        $this->populateFieldContainer($type, $mapping);
+
+        return $type;
+    }
+
+    /**
+     * @param AbstractType $type
+     * @param array        $mapping
+     */
+    private function populateType(AbstractType $type, array $mapping)
+    {
         if (isset($mapping['description'])) {
             $type->setDescription($mapping['description']);
         }
-        if (isset($mapping['fields'])) {
-            $fields = [];
-            foreach ($mapping['fields'] as $name => $fieldMapping) {
-                $fields[] = $this->createField($name, $fieldMapping);
-            }
-            $type->setFields($fields);
+    }
+
+    /**
+     * @param FieldContainer $type
+     * @param array          $mapping
+     */
+    private function populateFieldContainer(FieldContainer $type, array $mapping)
+    {
+        $this->populateType($type, $mapping);
+
+        if (!isset($mapping['fields'])) {
+            return;
         }
 
-        return $type;
+        $fields = [];
+        foreach ($mapping['fields'] as $name => $fieldMapping) {
+            $fields[] = $this->createField($name, $fieldMapping);
+        }
+        $type->setFields($fields);
     }
 
     /**
@@ -107,17 +127,7 @@ class YamlDriver extends FileDriver
     {
         $interface = new InterfaceType();
         $interface->setName($name);
-
-        if (isset($mapping['description'])) {
-            $interface->setDescription($mapping['description']);
-        }
-        if (isset($mapping['fields'])) {
-            $fields = [];
-            foreach ($mapping['fields'] as $fieldName => $fieldMapping) {
-                $fields[] = $this->createField($fieldName, $fieldMapping);
-            }
-            $interface->setFields($fields);
-        }
+        $this->populateFieldContainer($interface, $mapping);
 
         return $interface;
     }
@@ -130,17 +140,14 @@ class YamlDriver extends FileDriver
     private function createField($name, array $mapping)
     {
         $field = new Field();
-        $field->setName($name);
+        $field
+            ->setName($name)
+            ->setType(isset($mapping['type']) ? $mapping['type'] : null)
+            ->setField(isset($mapping['field']) ? $mapping['field'] : null)
+            ->setResolveConfig(isset($mapping['resolve']) ? $mapping['resolve'] : []);
 
-        if (isset($mapping['type'])) {
-            $field->setType($mapping['type']);
-        }
-        if (isset($mapping['description'])) {
-            $field->setDescription($mapping['description']);
-        }
-        if (isset($mapping['resolve'])) {
-            $field->setResolve($mapping['resolve']);
-        }
+        $this->populateType($field, $mapping);
+
         if (isset($mapping['args'])) {
             $args = [];
             foreach ($mapping['args'] as $argName => $argMapping) {
