@@ -31,7 +31,7 @@ class Field extends AbstractType
     /**
      * @var array
      */
-    private $resolveConfig = [];
+    private $resolveConfig;
 
     /**
      * @var Field[]

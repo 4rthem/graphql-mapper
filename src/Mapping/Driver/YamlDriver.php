@@ -186,7 +186,7 @@ class YamlDriver extends FileDriver
             ->setName($name)
             ->setType(isset($mapping['type']) ? $mapping['type'] : null)
             ->setProperty(isset($mapping['property']) ? $mapping['property'] : null)
-            ->setResolveConfig(isset($mapping['resolve']) ? $mapping['resolve'] : []);
+            ->setResolveConfig(isset($mapping['resolve']) ? $mapping['resolve'] : null);
 
         $this->populateType($field, $mapping);
 
