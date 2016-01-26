@@ -101,7 +101,7 @@ class MappingNormalizer
             ->getType($typeName)
             ->getResolveConfig();
 
-        $config = array_merge($typeConfig, $config);
+        $config = array_merge((array)$typeConfig, (array)$config);
         $field->setResolveConfig($config);
     }
 
@@ -114,7 +114,7 @@ class MappingNormalizer
     {
         $class = new \ReflectionClass($className);
 
-        $property  = $field->getField() ?: $field->getName();
+        $property  = $field->getProperty() ?: $field->getName();
         $camelName = String::camelize($property);
 
         $getter    = 'get' . $camelName;

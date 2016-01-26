@@ -7,11 +7,11 @@ use GraphQL\Type\Definition\Type as GQLType;
 class Field extends AbstractType
 {
     /**
-     * The model field name
+     * The model property name if different from the name
      *
      * @var string
      */
-    private $field;
+    private $property;
 
     /**
      * @var string
@@ -41,18 +41,18 @@ class Field extends AbstractType
     /**
      * @return string
      */
-    public function getField()
+    public function getProperty()
     {
-        return $this->field;
+        return $this->property;
     }
 
     /**
-     * @param string $field
+     * @param string $property
      * @return $this
      */
-    public function setField($field)
+    public function setProperty($property)
     {
-        $this->field = $field;
+        $this->property = $property;
 
         return $this;
     }

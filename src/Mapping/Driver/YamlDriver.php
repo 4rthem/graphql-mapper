@@ -35,38 +35,74 @@ class YamlDriver extends FileDriver
         foreach ($config as $type => $mapping) {
             switch ($type) {
                 case 'query':
-                    $querySchema = $schemaContainer->getQuerySchema();
-                    if (null === $querySchema) {
-                        $querySchema = new Query();
-                        $schemaContainer->setQuerySchema($querySchema);
-                    }
-
-                    $this->populateFieldContainer($querySchema, $mapping);
+                    $this->mapQuery($schemaContainer, $mapping);
                     break;
                 case 'mutation':
-                    $mutationSchema = $schemaContainer->getMutationSchema();
-                    if (null === $mutationSchema) {
-                        $mutationSchema = new Query();
-                        $schemaContainer->setMutationSchema($mutationSchema);
-                    }
-
-                    $this->populateFieldContainer($mutationSchema, $mapping);
+                    $this->mapMutation($schemaContainer, $mapping);
                     break;
                 case 'types':
-                    foreach ($mapping as $name => $typeMapping) {
-                        $type = $this->createType($name, $typeMapping);
-                        $schemaContainer->addType($type);
-                    }
+                    $this->mapTypes($schemaContainer, $mapping);
                     break;
                 case 'interfaces':
-                    foreach ($mapping as $name => $interfaceMapping) {
-                        $interface = $this->createInterface($name, $interfaceMapping);
-                        $schemaContainer->addInterface($interface);
-                    }
+                    $this->mapInterfaces($schemaContainer, $mapping);
                     break;
                 default:
-                    throw new \UnexpectedValueException(sprintf('Unsupported key "%s"'));
+                    throw new \UnexpectedValueException(sprintf('Unsupported key "%s"', $type));
             }
+        }
+    }
+
+    /**
+     * @param SchemaContainer $schemaContainer
+     * @param array           $mapping
+     */
+    private function mapQuery(SchemaContainer $schemaContainer, array $mapping)
+    {
+        $querySchema = $schemaContainer->getQuerySchema();
+        if (null === $querySchema) {
+            $querySchema = new Query();
+            $schemaContainer->setQuerySchema($querySchema);
+        }
+
+        $this->populateFieldContainer($querySchema, $mapping);
+    }
+
+    /**
+     * @param SchemaContainer $schemaContainer
+     * @param array           $mapping
+     */
+    private function mapMutation(SchemaContainer $schemaContainer, array $mapping)
+    {
+        $mutationSchema = $schemaContainer->getMutationSchema();
+        if (null === $mutationSchema) {
+            $mutationSchema = new Query();
+            $schemaContainer->setMutationSchema($mutationSchema);
+        }
+
+        $this->populateFieldContainer($mutationSchema, $mapping);
+    }
+
+    /**
+     * @param SchemaContainer $schemaContainer
+     * @param array           $mapping
+     */
+    private function mapTypes(SchemaContainer $schemaContainer, array $mapping)
+    {
+        foreach ($mapping as $name => $typeMapping) {
+            $type = $this->createType($name, $typeMapping);
+            $schemaContainer->addType($type);
+        }
+    }
+
+    /**
+     * @param SchemaContainer $schemaContainer
+     * @param array           $mapping
+     */
+    private function mapInterfaces(SchemaContainer $schemaContainer, array $mapping)
+    {
+        foreach ($mapping as $name => $interfaceMapping) {
+            $interface = $this->createInterface($name, $interfaceMapping);
+            $schemaContainer->addInterface($interface);
         }
     }
 
@@ -81,7 +117,13 @@ class YamlDriver extends FileDriver
         $type
             ->setName($name)
             ->setExtends(isset($mapping['extends']) ? $mapping['extends'] : null)
-            ->setResolveConfig(isset($mapping['resolve']) ? $mapping['resolve'] : []);
+            ->setResolveConfig(isset($mapping['resolve']) ? $mapping['resolve'] : null);
+
+        if (isset($mapping['values'])) {
+            $type
+                ->setInternalType('EnumType')
+                ->setValues($mapping['values']);
+        }
 
         $this->populateFieldContainer($type, $mapping);
 
@@ -143,7 +185,7 @@ class YamlDriver extends FileDriver
         $field
             ->setName($name)
             ->setType(isset($mapping['type']) ? $mapping['type'] : null)
-            ->setField(isset($mapping['field']) ? $mapping['field'] : null)
+            ->setProperty(isset($mapping['property']) ? $mapping['property'] : null)
             ->setResolveConfig(isset($mapping['resolve']) ? $mapping['resolve'] : []);
 
         $this->populateType($field, $mapping);

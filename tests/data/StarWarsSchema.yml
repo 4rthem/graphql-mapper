@@ -1,0 +1,93 @@
+
+interfaces:
+    Character:
+        description: A character in the Star Wars Trilogy
+        fields:
+            id:
+                type: String!
+                description: The id of the character.
+            name:
+                type: String
+                description: The name of the character.
+            friends:
+                type: "[Character]"
+                description: The friends of the character, or an empty list if they have none.
+            appearsIn:
+                type: "[Episode]"
+                description: Which movies they appear in.
+
+types:
+    Episode:
+        description: One of the films in the Star Wars Trilogy
+        values:
+            NEWHOPE:
+                value: 4
+                description: Released in 1977.
+            EMPIRE:
+                value: 5
+                description: Released in 1980.
+            JEDI:
+                value: 6
+                description: Released in 1983.
+
+    Human:
+        description: A humanoid creature in the Star Wars universe.
+        extends: Character
+        fields:
+            id:
+                type: String!
+                description: The id of the human.
+            name:
+                type: String
+                description: The name of the human.
+            friends:
+                type: "[Character]"
+                description: The friends of the human, or an empty list if they have none.
+            appearsIn:
+                type: "[Episode]"
+                description: Which movies they appear in.
+            homePlanet:
+                type: String
+                description: The home planet of the human, or null if unknown.
+
+    Droid:
+        description: A mechanical creature in the Star Wars universe.
+        extends: Character
+        fields:
+            id:
+                type: String!
+                description: The id of the droid.
+            name:
+                type: String
+                description: The name of the droid.
+            friends:
+                type: "[Character]"
+                description: The friends of the droid, or an empty list if they have none.
+            appearsIn:
+                type: "[Episode]"
+                description: Which movies they appear in.
+            primaryFunction:
+                type: String
+                description: The primary function of the droid.
+
+
+query:
+    fields:
+        hero:
+            type: Character
+            args:
+                episode:
+                    description: If omitted, returns the hero of the whole saga. If provided, returns the hero of that particular episode.
+                    type: Episode
+        human:
+            type: Human
+            args:
+                id:
+                    description: id of the human
+                    type: String!
+        droid:
+            type: Droid
+            args:
+                id:
+                    description: id of the droid
+                    type: String!

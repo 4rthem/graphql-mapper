@@ -100,7 +100,6 @@ mutation:
 ## Usage
 
 ```php
-<?php
 // entry.php
 use Arthem\GraphQLMapper\GraphQLManager;
 use Arthem\GraphQLMapper\SchemaSetup;
@@ -108,8 +107,8 @@ use Arthem\GraphQLMapper\SchemaSetup;
 // bootstrap.php
 require_once '../vendor/autoload.php';
 
-// replace with mechanism to retrieve EntityManager in your app
-$entityManager = getEntityManage();
+// replace with mechanism to retrieve Doctrine EntityManager in your app
+$entityManager = getEntityManager();
 
 // GraphQL part
 $paths          = ['/path/to/your/mapping/file.yml'];

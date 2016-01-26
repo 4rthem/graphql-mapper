@@ -1,6 +1,6 @@
 <?php
 
-namespace Arthem\GraphQLMapper\Test;
+namespace Arthem\GraphQLMapper\Test\Mapping\Driver;
 
 use Arthem\GraphQLMapper\Mapping\Field;
 use Arthem\GraphQLMapper\Mapping\InterfaceType;
@@ -26,100 +26,159 @@ abstract class AbstractDriverTest extends \PHPUnit_Framework_TestCase
             return self::$expectedSchema;
         }
 
-        $idField = new Field();
-        $idField
-            ->setName('id')
-            ->setDescription('The user primary key')
-            ->setType('Int');
+        $episodeType = new Type();
+        $episodeType
+            ->setName('Episode')
+            ->setDescription('One of the films in the Star Wars Trilogy')
+            ->setValues([
+                'NEWHOPE' => [
+                    'value'       => 4,
+                    'description' => 'Released in 1977.',
+                ],
+                'EMPIRE'  => [
+                    'value'       => 5,
+                    'description' => 'Released in 1980.',
+                ],
+                'JEDI'    => [
+                    'value'       => 6,
+                    'description' => 'Released in 1983.',
+                ],
+            ]);
 
-        $nameField = new Field();
-        $nameField
-            ->setName('name')
-            ->setDescription('The user name')
-            ->setType('String');
-
-        $emailField = new Field();
-        $emailField
-            ->setName('email')
-            ->setDescription('The user email')
-            ->setType('String');
-
-        $friendsField = new Field();
-        $friendsField
-            ->setName('friends')
-            ->setDescription('The user friends')
-            ->setType('[User]')
-            ->setResolveConfig('AppBundle\Entity\Friend');
-
-        $userType = new Type();
-        $userType->setName('User')
-            ->setDescription('User type description')
-            ->setExtends('Item')
+        $characterInterface = new InterfaceType();
+        $characterInterface
+            ->setName('Character')
+            ->setDescription('A character in the Star Wars Trilogy')
             ->setFields([
-                $idField,
-                $nameField,
-                $emailField,
-                $friendsField,
+                $this->createIdField('The id of the character.'),
+                $this->createNameField('The name of the character.'),
+                $this->createFriendsField('The friends of the character, or an empty list if they have none.'),
+                $this->createAppearsInField(),
             ]);
 
-        $idField = new Field();
-        $idField
-            ->setName('id')
-            ->setDescription('The item primary key')
-            ->setType('Int');
+        $homePlanet = new Field();
+        $homePlanet
+            ->setName('homePlanet')
+            ->setType('String')
+            ->setDescription('The home planet of the human, or null if unknown.');
 
-        $nameField = new Field();
-        $nameField
-            ->setName('name')
-            ->setDescription('The item name')
-            ->setType('String');
-
-        $interface = new InterfaceType();
-        $interface->setName('Item')
-            ->setDescription('Item interface description')
+        $humanType = new Type();
+        $humanType->setName('Human')
+            ->setDescription('A humanoid creature in the Star Wars universe.')
+            ->setExtends('Character')
             ->setFields([
-                $idField,
-                $nameField,
+                $this->createIdField('The id of the human.'),
+                $this->createNameField('The name of the human.'),
+                $this->createFriendsField('The friends of the human, or an empty list if they have none.'),
+                $this->createAppearsInField(),
+                $homePlanet
             ]);
 
-        $idArg = new Field();
-        $idArg->setName('id')
-            ->setDescription('The ID')
-            ->setType('Int');
+        $primaryFunction = new Field();
+        $primaryFunction
+            ->setName('primaryFunction')
+            ->setType('String')
+            ->setDescription('The primary function of the droid.');
 
-        $adminField = new Field();
-        $adminField->setName('admin')
-            ->setDescription('Admin description')
-            ->setType('[User]')
-            ->setResolveConfig('AppBundle\Entity\User')
-            ->setArguments([
-                $idArg,
+        $droidType = new Type();
+        $droidType->setName('Droid')
+            ->setDescription('A mechanical creature in the Star Wars universe.')
+            ->setExtends('Character')
+            ->setFields([
+                $this->createIdField('The id of the droid.'),
+                $this->createNameField('The name of the droid.'),
+                $this->createFriendsField('The friends of the droid, or an empty list if they have none.'),
+                $this->createAppearsInField(),
+                $primaryFunction
             ]);
 
-        $idArg = clone $idArg;
+        $episodeField = new Field();
+        $episodeField
+            ->setName('episode')
+            ->setType('Episode')
+            ->setDescription('If omitted, returns the hero of the whole saga. If provided, returns the hero of that particular episode.');
 
-        $userField = new Field();
-        $userField->setName('user')
-            ->setDescription('User description')
-            ->setType('User')
-            ->setResolveConfig('AppBundle\Entity\User')
+        $heroField = new Field();
+        $heroField->setName('hero')
+            ->setType('Character')
             ->setArguments([
-                $idArg,
+                $episodeField,
+            ]);
+
+        $humanField = new Field();
+        $humanField->setName('human')
+            ->setType('Human')
+            ->setArguments([
+                $this->createIdField('id of the human'),
+            ]);
+
+        $droidField = new Field();
+        $droidField->setName('droid')
+            ->setType('Droid')
+            ->setArguments([
+                $this->createIdField('id of the droid'),
             ]);
 
         $query = new Query();
-        $query->setDescription('The root query description')
+        $query
             ->setFields([
-                $adminField,
-                $userField,
+                $heroField,
+                $humanField,
+                $droidField,
             ]);
 
         $schema = new SchemaContainer();
         $schema
-            ->addType($userType)
-            ->addInterface($interface)
+            ->addType($episodeType)
+            ->addType($humanType)
+            ->addType($droidType)
+            ->addInterface($characterInterface)
             ->setQuerySchema($query);
 
         return self::$expectedSchema = $schema;
+    }
+
+    private function createIdField($description)
+    {
+        $field = new Field();
+        $field
+            ->setName('id')
+            ->setDescription($description)
+            ->setType('String!');
+
+        return $field;
+    }
+
+    private function createNameField($description)
+    {
+        $field = new Field();
+        $field
+            ->setName('name')
+            ->setDescription($description)
+            ->setType('String');
+
+        return $field;
+    }
+
+    private function createFriendsField($description)
+    {
+        $field = new Field();
+        $field
+            ->setName('friends')
+            ->setDescription($description)
+            ->setType('[Character]');
+
+        return $field;
+    }
+
+    private function createAppearsInField()
+    {
+        $field = new Field();
+        $field
+            ->setName('appearsIn')
+            ->setDescription('Which movies they appear in.')
+            ->setType('[Episode]');
+
+        return $field;
     }
 }

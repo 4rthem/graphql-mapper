@@ -7,7 +7,7 @@ abstract class FieldContainer extends AbstractType
     /**
      * @var Field[]
      */
-    private $fields;
+    private $fields = [];
 
     /**
      * @return Field[]
