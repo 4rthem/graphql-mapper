@@ -22,13 +22,6 @@ class Type extends FieldContainer
     private $resolveConfig;
 
     /**
-     * The GraphQL class used to build the final schema
-     *
-     * @var string
-     */
-    private $internalType = 'ObjectType';
-
-    /**
      * @var array
      */
     private $values;
@@ -91,25 +84,6 @@ class Type extends FieldContainer
     }
 
     /**
-     * @return string
-     */
-    public function getInternalType()
-    {
-        return $this->internalType;
-    }
-
-    /**
-     * @param string $internalType
-     * @return $this
-     */
-    public function setInternalType($internalType)
-    {
-        $this->internalType = $internalType;
-
-        return $this;
-    }
-
-    /**
      * @return array
      */
     public function getValues()
@@ -125,6 +99,9 @@ class Type extends FieldContainer
     {
         $this->values = $values;
         $this->setInternalType('EnumType');
+        $this->resolveConfig = array(
+            'handler' => 'enum',
+        );
 
         return $this;
     }
@@ -137,6 +114,7 @@ class Type extends FieldContainer
         $mapping = parent::toMapping();
 
         $mapping['extends'] = $this->extends;
+        $mapping['values'] = $this->values;
 
         return $mapping;
     }

@@ -2,7 +2,7 @@
 
 namespace Arthem\GraphQLMapper\Mapping;
 
-use Arthem\GraphQLMapper\Utils\String;
+use Arthem\GraphQLMapper\Utils\StringHelper;
 use Arthem\GraphQLMapper\Utils\TypeParser;
 
 class MappingNormalizer
@@ -115,7 +115,7 @@ class MappingNormalizer
         $class = new \ReflectionClass($className);
 
         $property  = $field->getProperty() ?: $field->getName();
-        $camelName = String::camelize($property);
+        $camelName = StringHelper::camelize($property);
 
         $getter    = 'get' . $camelName;
         $getsetter = lcfirst($camelName);

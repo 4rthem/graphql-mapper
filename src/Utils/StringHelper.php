@@ -2,7 +2,7 @@
 
 namespace Arthem\GraphQLMapper\Utils;
 
-class String
+class StringHelper
 {
     /**
      * Camelizes a string.

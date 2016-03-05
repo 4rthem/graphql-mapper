@@ -120,9 +120,7 @@ class YamlDriver extends FileDriver
             ->setResolveConfig(isset($mapping['resolve']) ? $mapping['resolve'] : null);
 
         if (isset($mapping['values'])) {
-            $type
-                ->setInternalType('EnumType')
-                ->setValues($mapping['values']);
+            $type->setValues($mapping['values']);
         }
 
         $this->populateFieldContainer($type, $mapping);
@@ -186,7 +184,7 @@ class YamlDriver extends FileDriver
             ->setName($name)
             ->setType(isset($mapping['type']) ? $mapping['type'] : null)
             ->setProperty(isset($mapping['property']) ? $mapping['property'] : null)
-            ->setResolveConfig(isset($mapping['resolve']) ? $mapping['resolve'] : null);
+            ->setResolveConfig(isset($mapping['resolve']) ? $mapping['resolve'] : []);
 
         $this->populateType($field, $mapping);
 

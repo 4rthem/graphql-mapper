@@ -8,7 +8,6 @@
 This library allows to build a GraphQL schema based on your model.
 It depends on the [GraphQL PHP implementation](https://github.com/webonyx/graphql-php)
 
-
 ## Installation
 
 This is installable via [Composer](https://getcomposer.org/) as [arthem/graphql-mapper](https://packagist.org/packages/arthem/graphql-mapper):
@@ -23,76 +22,120 @@ Create your schema:
 
 ```yaml
 # /path/to/your/mapping/file.yml
-types:
-    User:
-        extends: Item
-        description: A user, probably a human
-        resolve:
-            handler: doctrine # Service responsible of retrieving fields data of this type
-            model: AppBundle\Entity\User # The class model of this type
-        fields:
-            id:
-                type: Int
-                description: The primary key
-            name:
-                type: String
-                description: The user name
-            main_email:
-                field: email # the model field to read (if different from the key)
-                type: String
-                description: The user email
-            test:
-                type: String
-                resolve:
-                    # handler: callable (optional)
-                    function: strtoupper # just a function
-                args:
-                    my_string: # argument to pass to the "strtoupper" function
-                        description: The string to uppercase
-                        type: String!
-            friends:
-                type: "[User]"
-                resolve:
-                    # handler: doctrine (auto resolved through the "friends" type)
-                    model: AppBundle\Entity\Friend # By default, will look at the destination type model
-                    method: getFriends # the repository method
-                description: The user's friends
 
 interfaces:
-    Item:
-        description: Something
+    Character:
+        description: A character in the Star Wars Trilogy
         fields:
-            idd:
-                type: Int
-                description: The primary key
+            id:
+                type: String!
+                description: The id of the character.
             name:
                 type: String
-                description: The thing name
+                description: The name of the character.
+            friends:
+                type: "[Character]"
+                description: The friends of the character, or an empty list if they have none.
+            appearsIn:
+                type: "[Episode]"
+                description: Which movies they appear in.
+
+types:
+    Episode:
+        description: One of the films in the Star Wars Trilogy
+        values:
+            NEWHOPE:
+                value: 4
+                description: Released in 1977.
+            EMPIRE:
+                value: 5
+                description: Released in 1980.
+            JEDI:
+                value: 6
+                description: Released in 1983.
+
+    Human:
+        description: A humanoid creature in the Star Wars universe.
+        extends: Character
+        fields:
+            id:
+                type: String!
+                description: The id of the human.
+            name:
+                type: String
+                description: The name of the human.
+            friends:
+                type: "[Character]"
+                description: The friends of the human, or an empty list if they have none.
+            appearsIn:
+                type: "[Episode]"
+                description: Which movies they appear in.
+            homePlanet:
+                type: String
+                description: The home planet of the human, or null if unknown.
+
+    Droid:
+        description: A mechanical creature in the Star Wars universe.
+        extends: Character
+        fields:
+            id:
+                type: String!
+                description: The id of the droid.
+            name:
+                type: String
+                description: The name of the droid.
+            friends:
+                type: "[Character]"
+                description: The friends of the droid, or an empty list if they have none.
+            appearsIn:
+                type: "[Episode]"
+                description: Which movies they appear in.
+            primaryFunction:
+                type: String
+                description: The primary function of the droid.
+
 
 query:
     fields:
-        users:
-            type: "[User]"
-        user:
-            type: "User"
+        hero:
+            type: Character
+            args:
+                episode:
+                    description: If omitted, returns the hero of the whole saga. If provided, returns the hero of that particular episode.
+                    type: Episode
+        human:
+            type: Human
             args:
                 id:
-                    description: The ID
-                    type: Int!
+                    description: id of the human
+                    type: String!
+        droid:
+            type: Droid
+            args:
+                id:
+                    description: id of the droid
+                    type: String!
+
 
 mutation:
     fields:
-        updateEmail:
-            type: User
+        createDroid:
+            type: Droid
             resolve:
-                method: updateEmail
+                method: createDroid
             args:
-                id:
-                    description: The ID
-                    type: Int!
-                email:
-                    description: The new email
-                    type: String!
+                name:
+                    type: String
+                    description: The name of the droid.
+                friends:
+                    type: "[Character]"
+                    description: The friends of the droid.
+                appearsIn:
+                    type: "[Episode]"
+                    description: Which movies they appear in.
+                primaryFunction:
+                    type: String
+                    description: The primary function of the droid.
 ```
 
 > NB: listOf types must be wrapped by quotes `type: "[User]"`
@@ -122,16 +165,16 @@ Ready to query:
 
 ```bash
 curl -XPOST 'http://localhost/entry.php' -d 'query=query FooBar {
-    luke: user(id: 1) {
+    luke: hero(id: 1) {
         id,
         name,
-        main_email,
-        test(my_string: "upper me!"),
         friends {
             id, name
         }
     },
-    users { id }
+    droid(id: 2) {
+        primaryFunction
+    }
 }'
 ```
 
@@ -151,7 +194,6 @@ Then register it to the `SchemaFactory`:
 $schemaFactory  = SchemaSetup::createDoctrineYamlSchemaFactory($paths, $entityManager);
 $schemaFactory->addResolver(new CustomResolver());
 ```
-
 
 ## License
 

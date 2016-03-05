@@ -55,8 +55,33 @@ class Guess
      */
     public function __construct($value, $confidence = self::LOW_CONFIDENCE)
     {
+        if (!in_array($confidence, [
+            self::VERY_HIGH_CONFIDENCE,
+            self::HIGH_CONFIDENCE,
+            self::MEDIUM_CONFIDENCE,
+            self::LOW_CONFIDENCE,
+        ])
+        ) {
+            throw new \InvalidArgumentException('The confidence should be one of the constants defined in Guess.');
+        }
+
         $this->value      = $value;
         $this->confidence = $confidence;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getValue()
+    {
+        return $this->value;
+    }
+
+    /**
+     * @return int
+     */
+    public function getConfidence()
+    {
+        return $this->confidence;
+    }
 }

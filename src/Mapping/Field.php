@@ -31,7 +31,7 @@ class Field extends AbstractType
     /**
      * @var array
      */
-    private $resolveConfig;
+    private $resolveConfig = array();
 
     /**
      * @var Field[]
@@ -126,7 +126,7 @@ class Field extends AbstractType
      * @param array $resolveConfig
      * @return $this
      */
-    public function setResolveConfig($resolveConfig)
+    public function setResolveConfig(array $resolveConfig)
     {
         $this->resolveConfig = $resolveConfig;
 
@@ -139,7 +139,7 @@ class Field extends AbstractType
      */
     public function mergeRevolveConfig(array $config)
     {
-        $this->resolveConfig = array_merge($this->resolveConfig, $config);
+        $this->resolveConfig = array_merge($config, $this->resolveConfig);
 
         return $this;
     }
@@ -164,7 +164,7 @@ class Field extends AbstractType
     }
 
     /**
-     * @return array<string,mixed>
+     * @return array
      */
     public function toMapping()
     {

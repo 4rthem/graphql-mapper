@@ -6,6 +6,7 @@ use Arthem\GraphQLMapper\Mapping\Cache\CacheDriverInterface;
 use Arthem\GraphQLMapper\Mapping\Driver\DriverInterface;
 use Arthem\GraphQLMapper\Mapping\Field;
 use Arthem\GraphQLMapper\Mapping\FieldContainer;
+use Arthem\GraphQLMapper\Mapping\Guess\MappingGuesserManager;
 use Arthem\GraphQLMapper\Mapping\InterfaceType;
 use Arthem\GraphQLMapper\Mapping\MappingNormalizer;
 use Arthem\GraphQLMapper\Mapping\SchemaContainer;
@@ -47,12 +48,23 @@ class SchemaFactory
     private $normalizer;
 
     /**
-     * @param DriverInterface $driver
+     * @var MappingGuesserManager
      */
-    public function __construct(DriverInterface $driver, TypeResolver $typeResolver)
-    {
+    private $guesser;
+
+    /**
+     * @param DriverInterface            $driver
+     * @param TypeResolver               $typeResolver
+     * @param MappingGuesserManager|null $guesser
+     */
+    public function __construct(
+        DriverInterface $driver,
+        TypeResolver $typeResolver,
+        MappingGuesserManager $guesser = null
+    ) {
         $this->driver       = $driver;
         $this->typeResolver = $typeResolver;
+        $this->guesser      = $guesser;
         $this->normalizer   = new MappingNormalizer();
         $this->addResolver(new CallableResolver());
     }
@@ -112,6 +124,9 @@ class SchemaFactory
     {
         $schemaContainer = new SchemaContainer();
         $this->driver->load($schemaContainer);
+        if (null !== $this->guesser) {
+            $this->guesser->guess($schemaContainer);
+        }
         $this->normalizer->normalize($schemaContainer);
 
         if (null !== $this->cacheDriver) {
@@ -144,7 +159,15 @@ class SchemaFactory
         if (null !== $type->getFields()) {
             $this->prepareFields($type->getFields());
         }
-        $type = new GQLDefinition\ObjectType($type->toMapping());
+
+        switch ($type->getInternalType()) {
+            case 'ObjectType':
+                $type = new GQLDefinition\ObjectType($type->toMapping());
+                break;
+            case 'EnumType':
+                $type = new GQLDefinition\EnumType($type->toMapping());
+                break;
+        }
 
         return $type;
     }
@@ -168,6 +191,9 @@ class SchemaFactory
             }
 
             $typeName = $field->getType();
+            if (empty($typeName)) {
+                throw new \InvalidArgumentException(sprintf('Missing type for field "%s"', $field->getName()));
+            }
             $field->setResolvedType(function () use ($typeName) {
                 return $this->typeResolver->resolveType($typeName);
             });

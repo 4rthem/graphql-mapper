@@ -10,6 +10,13 @@ abstract class FieldContainer extends AbstractType
     private $fields = [];
 
     /**
+     * The GraphQL class used to build the final schema
+     *
+     * @var string
+     */
+    private $internalType = 'ObjectType';
+
+    /**
      * @return Field[]
      */
     public function getFields()
@@ -24,6 +31,25 @@ abstract class FieldContainer extends AbstractType
     public function setFields(array $fields)
     {
         $this->fields = $fields;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getInternalType()
+    {
+        return $this->internalType;
+    }
+
+    /**
+     * @param string $internalType
+     * @return $this
+     */
+    public function setInternalType($internalType)
+    {
+        $this->internalType = $internalType;
 
         return $this;
     }

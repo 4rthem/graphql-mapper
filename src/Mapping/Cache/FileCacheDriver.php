@@ -12,11 +12,18 @@ class FileCacheDriver implements CacheDriverInterface
     private $cacheFile;
 
     /**
-     * @param string $cacheFile
+     * @var bool
      */
-    public function __construct($cacheFile)
+    private $cacheEnabled;
+
+    /**
+     * @param string $cacheFile
+     * @param bool   $cacheEnabled
+     */
+    public function __construct($cacheFile, $cacheEnabled = true)
     {
-        $this->cacheFile = $cacheFile;
+        $this->cacheFile    = $cacheFile;
+        $this->cacheEnabled = $cacheEnabled;
     }
 
     /**
@@ -24,7 +31,7 @@ class FileCacheDriver implements CacheDriverInterface
      */
     public function load()
     {
-        if (!is_file($this->cacheFile)) {
+        if (!$this->cacheEnabled || !is_file($this->cacheFile)) {
             return false;
         }
 
@@ -36,6 +43,10 @@ class FileCacheDriver implements CacheDriverInterface
      */
     public function save(SchemaContainer $container)
     {
+        if (!$this->cacheEnabled) {
+            return;
+        }
+
         file_put_contents($this->cacheFile, serialize($container));
     }
 
