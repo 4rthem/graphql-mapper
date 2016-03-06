@@ -9,7 +9,7 @@ use GraphQL\Type\Definition\ResolveInfo;
 class PropertyResolver extends SingletonResolver
 {
     /**
-     * {@inheritdoc]
+     * {@inheritdoc}
      */
     public function getName()
     {
@@ -17,7 +17,7 @@ class PropertyResolver extends SingletonResolver
     }
 
     /**
-     * {@inheritdoc]
+     * {@inheritdoc}
      */
     public function createFunction(array $config, Field $field)
     {

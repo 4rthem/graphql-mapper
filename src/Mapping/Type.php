@@ -10,18 +10,6 @@ class Type extends FieldContainer
     private $extends;
 
     /**
-     * The model class
-     *
-     * @var string
-     */
-    private $model;
-
-    /**
-     * @var array
-     */
-    private $resolveConfig;
-
-    /**
      * @var array
      */
     private $values;
@@ -46,44 +34,6 @@ class Type extends FieldContainer
     }
 
     /**
-     * @return string
-     */
-    public function getModel()
-    {
-        return $this->model;
-    }
-
-    /**
-     * @param string $model
-     * @return $this
-     */
-    public function setModel($model)
-    {
-        $this->model = $model;
-
-        return $this;
-    }
-
-    /**
-     * @return array
-     */
-    public function getResolveConfig()
-    {
-        return $this->resolveConfig;
-    }
-
-    /**
-     * @param array $resolveConfig
-     * @return $this
-     */
-    public function setResolveConfig(array $resolveConfig = null)
-    {
-        $this->resolveConfig = $resolveConfig;
-
-        return $this;
-    }
-
-    /**
      * @return array
      */
     public function getValues()
@@ -99,15 +49,12 @@ class Type extends FieldContainer
     {
         $this->values = $values;
         $this->setInternalType('EnumType');
-        $this->resolveConfig = array(
-            'handler' => 'enum',
-        );
 
         return $this;
     }
 
     /**
-     * @return array
+     * {@inheritdoc}
      */
     public function toMapping()
     {

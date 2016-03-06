@@ -2,7 +2,7 @@
 
 namespace Arthem\GraphQLMapper\Utils;
 
-class TypeParser
+abstract class TypeParser
 {
     /**
      * Return the real type if wrapped in a collection

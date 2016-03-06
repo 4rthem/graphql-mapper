@@ -18,7 +18,7 @@ class DefaultFilePathAccessor implements FilePathAccessorInterface
     }
 
     /**
-     * {@inheritdoc]
+     * {@inheritdoc}
      */
     public function getPaths()
     {

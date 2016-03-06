@@ -14,7 +14,7 @@ abstract class SingletonResolver implements ResolverInterface
     protected $callback;
 
     /**
-     * {@inheritdoc]
+     * {@inheritdoc}
      */
     public function getFunction(array $config, Field $field)
     {

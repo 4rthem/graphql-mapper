@@ -2,7 +2,7 @@
 
 namespace Arthem\GraphQLMapper\Mapping\Guess;
 
-class Guess
+abstract class Guess
 {
     /**
      * Marks an instance with a value that is extremely likely to be correct.
@@ -33,11 +33,6 @@ class Guess
     const LOW_CONFIDENCE = 0;
 
     /**
-     * @var mixed
-     */
-    private $value;
-
-    /**
      * The confidence about the correctness of the value.
      *
      * One of VERY_HIGH_CONFIDENCE, HIGH_CONFIDENCE, MEDIUM_CONFIDENCE
@@ -48,12 +43,9 @@ class Guess
     private $confidence;
 
     /**
-     * Guess constructor.
-     *
-     * @param mixed $value
-     * @param int   $confidence
+     * @param int $confidence
      */
-    public function __construct($value, $confidence = self::LOW_CONFIDENCE)
+    public function __construct($confidence = self::LOW_CONFIDENCE)
     {
         if (!in_array($confidence, [
             self::VERY_HIGH_CONFIDENCE,
@@ -64,17 +56,7 @@ class Guess
         ) {
             throw new \InvalidArgumentException('The confidence should be one of the constants defined in Guess.');
         }
-
-        $this->value      = $value;
         $this->confidence = $confidence;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getValue()
-    {
-        return $this->value;
     }
 
     /**

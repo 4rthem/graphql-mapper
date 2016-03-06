@@ -117,10 +117,14 @@ class YamlDriver extends FileDriver
         $type
             ->setName($name)
             ->setExtends(isset($mapping['extends']) ? $mapping['extends'] : null)
-            ->setResolveConfig(isset($mapping['resolve']) ? $mapping['resolve'] : null);
+            ->setResolveConfig(isset($mapping['resolve']) ? $mapping['resolve'] : []);
 
         if (isset($mapping['values'])) {
             $type->setValues($mapping['values']);
+        }
+
+        if (isset($mapping['model'])) {
+            $type->setModel($mapping['model']);
         }
 
         $this->populateFieldContainer($type, $mapping);

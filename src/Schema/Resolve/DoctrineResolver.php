@@ -23,7 +23,7 @@ class DoctrineResolver extends SingletonResolver
     }
 
     /**
-     * {@inheritdoc]
+     * {@inheritdoc}
      */
     public function getName()
     {
@@ -31,7 +31,7 @@ class DoctrineResolver extends SingletonResolver
     }
 
     /**
-     * {@inheritdoc]
+     * {@inheritdoc}
      */
     protected function createFunction(array $config, Field $field)
     {
@@ -49,7 +49,7 @@ class DoctrineResolver extends SingletonResolver
                 $resolveConfig['array_params'] = true;
             }
 
-            $repository = $this->om->getRepository($resolveConfig['model']);
+            $repository = $this->om->getRepository($resolveConfig['entity']);
 
             $params = $arguments;
 

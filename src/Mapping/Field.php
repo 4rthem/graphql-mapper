@@ -96,6 +96,17 @@ class Field extends AbstractType
     }
 
     /**
+     * @param array $resolveConfig
+     * @return $this
+     */
+    public function mergeResolveConfig(array $resolveConfig)
+    {
+        $this->resolveConfig = array_merge($resolveConfig, $this->resolveConfig);
+
+        return $this;
+    }
+
+    /**
      * @return callable
      */
     public function getResolve()
@@ -164,7 +175,7 @@ class Field extends AbstractType
     }
 
     /**
-     * @return array
+     * {@inheritdoc}
      */
     public function toMapping()
     {

@@ -10,11 +10,16 @@ abstract class FieldContainer extends AbstractType
     private $fields = [];
 
     /**
-     * The GraphQL class used to build the final schema
+     * The model class
      *
      * @var string
      */
-    private $internalType = 'ObjectType';
+    private $model;
+
+    /**
+     * @var array
+     */
+    private $resolveConfig = [];
 
     /**
      * @return Field[]
@@ -25,7 +30,7 @@ abstract class FieldContainer extends AbstractType
     }
 
     /**
-     * @param Field[] $fields
+     * @param array $fields
      * @return $this
      */
     public function setFields(array $fields)
@@ -38,24 +43,54 @@ abstract class FieldContainer extends AbstractType
     /**
      * @return string
      */
-    public function getInternalType()
+    public function getModel()
     {
-        return $this->internalType;
+        return $this->model;
     }
 
     /**
-     * @param string $internalType
+     * @param string $model
      * @return $this
      */
-    public function setInternalType($internalType)
+    public function setModel($model)
     {
-        $this->internalType = $internalType;
+        $this->model = $model;
 
         return $this;
     }
 
     /**
      * @return array
+     */
+    public function getResolveConfig()
+    {
+        return $this->resolveConfig;
+    }
+
+    /**
+     * @param array $resolveConfig
+     * @return $this
+     */
+    public function setResolveConfig(array $resolveConfig)
+    {
+        $this->resolveConfig = $resolveConfig;
+
+        return $this;
+    }
+
+    /**
+     * @param array $resolveConfig
+     * @return $this
+     */
+    public function mergeResolveConfig(array $resolveConfig)
+    {
+        $this->resolveConfig = array_merge($resolveConfig, $this->resolveConfig);
+
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
      */
     public function toMapping()
     {

@@ -2,14 +2,12 @@
 
 namespace Arthem\GraphQLMapper\Mapping;
 
-use Arthem\GraphQLMapper\Utils\StringHelper;
 use Arthem\GraphQLMapper\Utils\TypeParser;
 
 class MappingNormalizer
 {
     /**
      * Validates mapping and fixes missing definitions
-     * Complete mapping by inspecting the model and guess resolve handlers
      *
      * @param SchemaContainer $schemaContainer
      */
@@ -19,23 +17,26 @@ class MappingNormalizer
 
         foreach ($schemaContainer->getTypes() as $type) {
             foreach ($type->getFields() as $field) {
-                $this->normalizeField($schemaContainer, $field, $type);
+                $this->normalizeField($schemaContainer, $field);
             }
         }
 
         if (null !== $querySchema = $schemaContainer->getQuerySchema()) {
             foreach ($querySchema->getFields() as $field) {
-                $this->normalizeField($schemaContainer, $field, null);
+                $this->normalizeField($schemaContainer, $field);
             }
         }
 
         if (null !== $mutationSchema = $schemaContainer->getMutationSchema()) {
             foreach ($mutationSchema->getFields() as $field) {
-                $this->normalizeField($schemaContainer, $field, null);
+                $this->normalizeField($schemaContainer, $field);
             }
         }
     }
 
+    /**
+     * @param SchemaContainer $schemaContainer
+     */
     private function fixNames(SchemaContainer $schemaContainer)
     {
         if (null !== $query = $schemaContainer->getQuerySchema()) {
@@ -53,44 +54,28 @@ class MappingNormalizer
         }
     }
 
-    private function normalizeField(SchemaContainer $schemaContainer, Field $field, Type $parentType = null)
+    /**
+     * @param SchemaContainer $schemaContainer
+     * @param Field           $field
+     */
+    private function normalizeField(SchemaContainer $schemaContainer, Field $field)
     {
         $config = $field->getResolveConfig();
 
-        if (empty($config)) {
-            if (true === $this->guessProperty($field, $parentType)) {
-                return;
-            }
-        } elseif (isset($config['function']) && !isset($config['handler'])) {
+        // TODO tranform to a Guesser
+        if (isset($config['function']) && !isset($config['handler'])) {
             $field->mergeRevolveConfig(['handler' => 'callable']);
         }
 
         $this->mergeResolveConfig($schemaContainer, $field);
     }
 
-    private function guessProperty(Field $field, Type $parentType = null)
-    {
-        if (null === $parentType) {
-            return;
-        }
-
-        $parentTypeConfig = $parentType->getResolveConfig();
-        if (isset($parentTypeConfig['model'])) {
-            $className = $parentTypeConfig['model'];
-            if (null !== $accessor = $this->getAccessor($className, $field)) {
-                $field->mergeRevolveConfig([
-                    'method'  => $accessor,
-                    'handler' => 'property',
-                ]);
-
-                return true;
-            }
-        }
-    }
-
+    /**
+     * @param SchemaContainer $schemaContainer
+     * @param Field           $field
+     */
     private function mergeResolveConfig(SchemaContainer $schemaContainer, Field $field)
     {
-        $config   = $field->getResolveConfig();
         $typeName = TypeParser::getFinalType($field->getType());
 
         if (!$schemaContainer->hasType($typeName)) {
@@ -101,37 +86,6 @@ class MappingNormalizer
             ->getType($typeName)
             ->getResolveConfig();
 
-        $config = array_merge((array)$typeConfig, (array)$config);
-        $field->setResolveConfig($config);
-    }
-
-    /**
-     * @param string $className
-     * @param Field  $field
-     * @return string|null
-     */
-    private function getAccessor($className, Field $field)
-    {
-        $class = new \ReflectionClass($className);
-
-        $property  = $field->getProperty() ?: $field->getName();
-        $camelName = StringHelper::camelize($property);
-
-        $getter    = 'get' . $camelName;
-        $getsetter = lcfirst($camelName);
-        $isser     = 'is' . $camelName;
-        $hasser    = 'has' . $camelName;
-        $test      = [$getter, $getsetter, $isser, $hasser];
-
-        $reflMethods = $class->getMethods(\ReflectionMethod::IS_PUBLIC);
-        $methods     = [];
-        foreach ($reflMethods as $reflMethod) {
-            $methods[$reflMethod->getName()] = true;
-        }
-        foreach ($test as $method) {
-            if (isset($methods[$method])) {
-                return $method;
-            }
-        }
+        $field->mergeResolveConfig($typeConfig);
     }
 }

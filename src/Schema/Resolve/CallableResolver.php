@@ -8,7 +8,7 @@ use GraphQL\Type\Definition\ResolveInfo;
 class CallableResolver extends SingletonResolver
 {
     /**
-     * {@inheritdoc]
+     * {@inheritdoc}
      */
     public function getName()
     {
@@ -16,7 +16,7 @@ class CallableResolver extends SingletonResolver
     }
 
     /**
-     * {@inheritdoc]
+     * {@inheritdoc}
      */
     protected function createFunction(array $config, Field $field)
     {

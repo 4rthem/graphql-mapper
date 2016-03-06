@@ -2,56 +2,119 @@
 
 namespace Arthem\GraphQLMapper\Mapping\Guess;
 
-use Arthem\GraphQLMapper\Mapping\Field;
-use Arthem\GraphQLMapper\Mapping\FieldContainer;
+use Arthem\GraphQLMapper\Mapping\Context\ContainerContext;
+use Arthem\GraphQLMapper\Mapping\Context\FieldContext;
 use Arthem\GraphQLMapper\Mapping\SchemaContainer;
 
 class MappingGuesserManager
 {
     /**
-     * @var MappingGuesserInterface[]
+     * @var GuesserInterface[]
      */
     private $guessers;
 
+    /**
+     * @param SchemaContainer $schemaContainer
+     */
     public function guess(SchemaContainer $schemaContainer)
     {
         foreach ($schemaContainer->getTypes() as $type) {
-            $this->guessFields($type, $schemaContainer);
+            $containerContext = new ContainerContext($type, $schemaContainer);
+            $this->guessFields($containerContext);
+
+            $this->guessTypeResolveConfig($containerContext);
         }
     }
 
-    private function guessFields(FieldContainer $fieldContainer, SchemaContainer $schemaContainer)
+    /**
+     * @param ContainerContext $containerContext
+     */
+    private function guessFields(ContainerContext $containerContext)
     {
-        foreach ($fieldContainer->getFields() as $field) {
-            $this->guessType($field, $fieldContainer, $schemaContainer);
+        foreach ($containerContext->getContainer()->getFields() as $field) {
+            $fieldContext = $containerContext->createFieldContext($field);
+            $this->guessFieldType($fieldContext);
+            $this->guessFieldResolveConfig($fieldContext);
         }
     }
 
-    private function guessType(Field $field, FieldContainer $fieldContainer, SchemaContainer $schemaContainer)
+    /**
+     * @param FieldContext $fieldContext
+     */
+    private function guessFieldType(FieldContext $fieldContext)
     {
+        $field = $fieldContext->getField();
         if ($field->getType()) {
             return;
         }
 
         $guesses = [];
         foreach ($this->guessers as $guesser) {
-            $guess = $guesser->guessType($field, $fieldContainer, $schemaContainer);
-            if (null !== $guess) {
-                $guesses[] = $guess;
+            if ($guesser instanceof FieldGuesserInterface) {
+                $guess = $guesser->guessFieldType($fieldContext);
+                if (null !== $guess) {
+                    $guesses[] = $guess;
+                }
             }
         }
 
+        /** @var TypeGuess $best */
         $best = $this->getBestGuess($guesses);
         if (null !== $best) {
-            $field->setType($best->getValue());
+            $field->setType($best->getType());
         }
     }
 
     /**
-     * Returns the guess most likely to be correct from a list of guesses.
-     *
-     * If there are multiple guesses with the same, highest confidence, the
-     * returned guess is any of them.
+     * @param ContainerContext $containerContext
+     */
+    private function guessTypeResolveConfig(ContainerContext $containerContext)
+    {
+        $guesses = [];
+        foreach ($this->guessers as $guesser) {
+            if ($guesser instanceof TypeGuesserInterface) {
+                $guess = $guesser->guessTypeResolveConfig($containerContext);
+                if (null !== $guess) {
+                    $guesses[] = $guess;
+                }
+            }
+        }
+
+        /** @var ResolveConfigGuess $best */
+        $best = $this->getBestGuess($guesses);
+        if (null !== $best) {
+            $containerContext
+                ->getContainer()
+                ->mergeResolveConfig($best->getConfig());
+        }
+    }
+
+    /**
+     * @param FieldContext $fieldContext
+     */
+    private function guessFieldResolveConfig(FieldContext $fieldContext)
+    {
+        $guesses = [];
+        foreach ($this->guessers as $guesser) {
+            if ($guesser instanceof FieldGuesserInterface) {
+                $guess = $guesser->guessFieldResolveConfig($fieldContext);
+                if (null !== $guess) {
+                    $guesses[] = $guess;
+                }
+            }
+        }
+
+        /** @var ResolveConfigGuess $best */
+        $best = $this->getBestGuess($guesses);
+        if (null !== $best) {
+            $fieldContext
+                ->getField()
+                ->mergeResolveConfig($best->getConfig());
+        }
+    }
+
+    /**
+     * Return the guess most likely to be correct from a list of guesses
      *
      * @param Guess[] $guesses An array of guesses
      * @return Guess|null The guess with the highest confidence
@@ -72,10 +135,10 @@ class MappingGuesserManager
     }
 
     /**
-     * @param MappingGuesserInterface $guesser
+     * @param GuesserInterface $guesser
      * @return $this
      */
-    public function addGuesser(MappingGuesserInterface $guesser)
+    public function addGuesser(GuesserInterface $guesser)
     {
         $this->guessers[] = $guesser;
 

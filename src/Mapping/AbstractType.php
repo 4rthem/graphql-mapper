@@ -15,6 +15,13 @@ abstract class AbstractType
     private $description;
 
     /**
+     * The GraphQL class used to build the final schema
+     *
+     * @var string
+     */
+    private $internalType = 'ObjectType';
+
+    /**
      * @return string
      */
     public function getName()
@@ -53,7 +60,26 @@ abstract class AbstractType
     }
 
     /**
-     * @return array<string,mixed>
+     * @return string
+     */
+    public function getInternalType()
+    {
+        return $this->internalType;
+    }
+
+    /**
+     * @param string $internalType
+     * @return $this
+     */
+    public function setInternalType($internalType)
+    {
+        $this->internalType = $internalType;
+
+        return $this;
+    }
+
+    /**
+     * @return array
      */
     public function toMapping()
     {
