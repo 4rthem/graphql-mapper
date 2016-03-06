@@ -20,7 +20,7 @@ class FieldContext extends ContainerContext
      */
     public function __construct(Field $field, FieldContainer $container, SchemaContainer $schema)
     {
-        $this->field     = $field;
+        $this->field = $field;
         parent::__construct($container, $schema);
     }
 

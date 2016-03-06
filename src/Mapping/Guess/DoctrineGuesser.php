@@ -20,7 +20,7 @@ class DoctrineGuesser implements TypeGuesserInterface, FieldGuesserInterface
     private $metadataFactory;
 
     /**
-     * @param ClassMetadataFactory $metadataFactory
+     * @param ObjectManager $objectManager
      */
     public function __construct(ObjectManager $objectManager)
     {

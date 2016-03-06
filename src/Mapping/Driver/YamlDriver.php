@@ -32,6 +32,11 @@ class YamlDriver extends FileDriver
     {
         $config = Yaml::parse($this->getFileContent($path));
 
+        if (!is_array($config)) {
+            return;
+        }
+
+        /** @var array $config */
         foreach ($config as $type => $mapping) {
             switch ($type) {
                 case 'query':

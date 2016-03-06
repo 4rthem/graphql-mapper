@@ -28,7 +28,7 @@ class PropertyGuesser implements FieldGuesserInterface
 
     /**
      * @param string       $className
-     * @param FieldContext $field
+     * @param FieldContext $fieldContext
      * @return string|null
      */
     private function getAccessor($className, FieldContext $fieldContext)

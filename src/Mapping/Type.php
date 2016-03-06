@@ -61,7 +61,7 @@ class Type extends FieldContainer
         $mapping = parent::toMapping();
 
         $mapping['extends'] = $this->extends;
-        $mapping['values'] = $this->values;
+        $mapping['values']  = $this->values;
 
         return $mapping;
     }

@@ -160,16 +160,18 @@ class SchemaFactory
             $this->prepareFields($type->getFields());
         }
 
-        switch ($type->getInternalType()) {
+        $internalType = $type->getInternalType();
+
+        switch ($internalType) {
             case 'ObjectType':
-                $type = new GQLDefinition\ObjectType($type->toMapping());
+                return new GQLDefinition\ObjectType($type->toMapping());
                 break;
             case 'EnumType':
-                $type = new GQLDefinition\EnumType($type->toMapping());
+                return new GQLDefinition\EnumType($type->toMapping());
                 break;
+            default:
+                throw new \InvalidArgumentException(sprintf('Undefined internal type "%s"', $internalType));
         }
-
-        return $type;
     }
 
     /**
