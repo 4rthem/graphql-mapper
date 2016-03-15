@@ -115,7 +115,12 @@ query:
                 id:
                     description: id of the droid
                     type: String!
-
+        date:
+            type: "[String]"
+            description: The current time
+            resolve:
+                function: getdate
+                no_args: true # no context arguments will be passed to the function
 
 mutation:
     fields:

@@ -1,6 +1,8 @@
 <?php
 
-namespace Arthem\GraphQLMapper\Mapping\Guess;
+namespace Arthem\GraphQLMapper\Mapping\Guesser;
+
+use Arthem\GraphQLMapper\Mapping\Guesser\Guess\Guess;
 
 class ResolveConfigGuess extends Guess
 {

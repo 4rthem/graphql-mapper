@@ -2,11 +2,12 @@
 
 namespace Arthem\GraphQLMapper\Schema;
 
+use Arthem\GraphQLMapper\Mapping\AbstractType;
 use Arthem\GraphQLMapper\Mapping\Cache\CacheDriverInterface;
 use Arthem\GraphQLMapper\Mapping\Driver\DriverInterface;
 use Arthem\GraphQLMapper\Mapping\Field;
 use Arthem\GraphQLMapper\Mapping\FieldContainer;
-use Arthem\GraphQLMapper\Mapping\Guess\MappingGuesserManager;
+use Arthem\GraphQLMapper\Mapping\Guesser\MappingGuesserManager;
 use Arthem\GraphQLMapper\Mapping\InterfaceType;
 use Arthem\GraphQLMapper\Mapping\MappingNormalizer;
 use Arthem\GraphQLMapper\Mapping\SchemaContainer;
@@ -143,7 +144,7 @@ class SchemaFactory
     private function createInterface(InterfaceType $type)
     {
         if (null !== $type->getFields()) {
-            $this->prepareFields($type->getFields());
+            $this->prepareFields($type->getFields(), $type);
         }
         $type = new GQLDefinition\InterfaceType($type->toMapping());
 
@@ -152,12 +153,12 @@ class SchemaFactory
 
     /**
      * @param FieldContainer $type
-     * @return GQLDefinition\ObjectType
+     * @return GQLDefinition\Type
      */
     private function createType(FieldContainer $type)
     {
         if (null !== $type->getFields()) {
-            $this->prepareFields($type->getFields());
+            $this->prepareFields($type->getFields(), $type);
         }
 
         $internalType = $type->getInternalType();
@@ -165,40 +166,50 @@ class SchemaFactory
         switch ($internalType) {
             case 'ObjectType':
                 return new GQLDefinition\ObjectType($type->toMapping());
-                break;
             case 'EnumType':
                 return new GQLDefinition\EnumType($type->toMapping());
-                break;
             default:
                 throw new \InvalidArgumentException(sprintf('Undefined internal type "%s"', $internalType));
         }
     }
 
     /**
-     * @param Field[] $fields
+     * @param Field[]                $fields
+     * @param AbstractType|FieldContainer[]|Field $parent
      */
-    private function prepareFields(array $fields)
+    private function prepareFields(array $fields, AbstractType $parent)
     {
         foreach ($fields as $field) {
-
             if (null !== $field->getArguments()) {
-                $this->prepareFields($field->getArguments());
+                $this->prepareFields($field->getArguments(), $field);
             }
 
-            $resolveConfig = $field->getResolveConfig();
-            if (isset($resolveConfig['handler'])) {
-                $handler  = $resolveConfig['handler'];
-                $resolver = $this->resolveFactories[$handler]->getFunction($resolveConfig, $field);
-                $field->setResolve($resolver);
-            }
+            $this->prepareResolver($field);
 
             $typeName = $field->getType();
             if (empty($typeName)) {
-                throw new \InvalidArgumentException(sprintf('Missing type for field "%s"', $field->getName()));
+                throw new \InvalidArgumentException(sprintf('Missing type for field "%s" in "%s"', $field->getName(), $parent->getName()));
             }
             $field->setResolvedType(function () use ($typeName) {
                 return $this->typeResolver->resolveType($typeName);
             });
+        }
+    }
+
+    /**
+     * @param Field $field
+     */
+    private function prepareResolver(Field $field)
+    {
+        $resolveConfig = $field->getResolveConfig();
+        if (isset($resolveConfig['handler'])) {
+
+            $handler = $resolveConfig['handler'];
+            if (!isset($this->resolveFactories[$handler])) {
+                throw new \Exception(sprintf('Handle named "%s" does not exist', $resolveConfig['handler']));
+            }
+            $resolver = $this->resolveFactories[$handler]->getFunction($resolveConfig, $field);
+            $field->setResolve($resolver);
         }
     }
 
