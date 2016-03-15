@@ -15,22 +15,22 @@ class MappingNormalizer
     {
         $this->fixNames($schemaContainer);
 
+        $fields = [];
+
         foreach ($schemaContainer->getTypes() as $type) {
-            foreach ($type->getFields() as $field) {
-                $this->normalizeField($schemaContainer, $field);
-            }
+            $fields = array_merge($fields, $type->getFields());
         }
 
         if (null !== $querySchema = $schemaContainer->getQuerySchema()) {
-            foreach ($querySchema->getFields() as $field) {
-                $this->normalizeField($schemaContainer, $field);
-            }
+            $fields = array_merge($fields, $querySchema->getFields());
         }
 
         if (null !== $mutationSchema = $schemaContainer->getMutationSchema()) {
-            foreach ($mutationSchema->getFields() as $field) {
-                $this->normalizeField($schemaContainer, $field);
-            }
+            $fields = array_merge($fields, $mutationSchema->getFields());
+        }
+
+        foreach ($fields as $field) {
+            $this->mergeResolveConfig($schemaContainer, $field);
         }
     }
 
@@ -55,22 +55,8 @@ class MappingNormalizer
     }
 
     /**
-     * @param SchemaContainer $schemaContainer
-     * @param Field           $field
-     */
-    private function normalizeField(SchemaContainer $schemaContainer, Field $field)
-    {
-        $config = $field->getResolveConfig();
-
-        // TODO tranform to a Guesser
-        if (isset($config['function']) && !isset($config['handler'])) {
-            $field->mergeRevolveConfig(['handler' => 'callable']);
-        }
-
-        $this->mergeResolveConfig($schemaContainer, $field);
-    }
-
-    /**
+     * Apply the resolve config of types that are used by query fields
+     *
      * @param SchemaContainer $schemaContainer
      * @param Field           $field
      */
@@ -78,13 +64,17 @@ class MappingNormalizer
     {
         $typeName = TypeParser::getFinalType($field->getType());
 
-        if (!$schemaContainer->hasType($typeName)) {
+        if ($schemaContainer->hasType($typeName)) {
+            $typeConfig = $schemaContainer
+                ->getType($typeName)
+                ->getResolveConfig();
+        } elseif ($schemaContainer->hasInterface($typeName)) {
+            $typeConfig = $schemaContainer
+                ->getInterface($typeName)
+                ->getResolveConfig();
+        } else {
             return;
         }
-
-        $typeConfig = $schemaContainer
-            ->getType($typeName)
-            ->getResolveConfig();
 
         $field->mergeResolveConfig($typeConfig);
     }

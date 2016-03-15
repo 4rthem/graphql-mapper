@@ -1,11 +1,13 @@
 <?php
-namespace Arthem\GraphQLMapper\Mapping\Guess;
+namespace Arthem\GraphQLMapper\Mapping\Guesser;
 
 use Arthem\GraphQLMapper\Mapping\Context\FieldContext;
+use Arthem\GraphQLMapper\Mapping\Guesser\Guess\Guess;
+use Arthem\GraphQLMapper\Mapping\Guesser\Guess\ResolveConfigGuess;
 use Arthem\GraphQLMapper\Mapping\Type;
 use Arthem\GraphQLMapper\Utils\StringHelper;
 
-class PropertyGuesser implements FieldGuesserInterface
+class PropertyGuesser implements FieldResolveGuesserInterface
 {
     /**
      * {@inheritdoc}
@@ -56,12 +58,5 @@ class PropertyGuesser implements FieldGuesserInterface
                 return $method;
             }
         }
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function guessFieldType(FieldContext $fieldContext)
-    {
     }
 }

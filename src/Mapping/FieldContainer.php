@@ -41,6 +41,17 @@ abstract class FieldContainer extends AbstractType
     }
 
     /**
+     * @param array $fields
+     * @return $this
+     */
+    public function addFields(array $fields)
+    {
+        $this->fields = array_merge($this->fields, $fields);
+
+        return $this;
+    }
+
+    /**
      * @return string
      */
     public function getModel()

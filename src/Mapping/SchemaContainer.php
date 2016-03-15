@@ -19,7 +19,7 @@ class SchemaContainer
     private $querySchema;
 
     /**
-     * @var Query
+     * @var Mutation
      */
     private $mutationSchema;
 
@@ -54,6 +54,7 @@ class SchemaContainer
     }
 
     /**
+     * @param string $name
      * @return Type
      */
     public function getType($name)
@@ -62,11 +63,30 @@ class SchemaContainer
     }
 
     /**
+     * @param string $name
+     * @return InterfaceType
+     */
+    public function getInterface($name)
+    {
+        return $this->interfaces[$name];
+    }
+
+    /**
+     * @param string $name
      * @return bool
      */
     public function hasType($name)
     {
         return isset($this->types[$name]);
+    }
+
+    /**
+     * @param string $name
+     * @return bool
+     */
+    public function hasInterface($name)
+    {
+        return isset($this->interfaces[$name]);
     }
 
     /**
@@ -97,7 +117,7 @@ class SchemaContainer
     }
 
     /**
-     * @return Query
+     * @return Mutation
      */
     public function getMutationSchema()
     {
@@ -105,10 +125,10 @@ class SchemaContainer
     }
 
     /**
-     * @param Query $mutationSchema
+     * @param Mutation $mutationSchema
      * @return $this
      */
-    public function setMutationSchema(Query $mutationSchema)
+    public function setMutationSchema(Mutation $mutationSchema)
     {
         $this->mutationSchema = $mutationSchema;
 

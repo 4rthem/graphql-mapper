@@ -15,11 +15,17 @@ abstract class AbstractDriverTest extends \PHPUnit_Framework_TestCase
      */
     static private $expectedSchema;
 
+    /**
+     * @param SchemaContainer $schema
+     */
     protected function assertSchemaContainer(SchemaContainer $schema)
     {
         $this->assertEquals($this->getExceptedSchemaContainer(), $schema, 'Invalid schema');
     }
 
+    /**
+     * @return SchemaContainer
+     */
     private function getExceptedSchemaContainer()
     {
         if (self::$expectedSchema !== null) {
@@ -65,7 +71,7 @@ abstract class AbstractDriverTest extends \PHPUnit_Framework_TestCase
         $humanType = new Type();
         $humanType->setName('Human')
             ->setDescription('A humanoid creature in the Star Wars universe.')
-            ->setExtends('Character')
+            ->setInterfaces(['Character'])
             ->setFields([
                 $this->createIdField('The id of the human.'),
                 $this->createNameField('The name of the human.'),
@@ -83,7 +89,7 @@ abstract class AbstractDriverTest extends \PHPUnit_Framework_TestCase
         $droidType = new Type();
         $droidType->setName('Droid')
             ->setDescription('A mechanical creature in the Star Wars universe.')
-            ->setExtends('Character')
+            ->setInterfaces(['Character'])
             ->setFields([
                 $this->createIdField('The id of the droid.'),
                 $this->createNameField('The name of the droid.'),
@@ -138,6 +144,10 @@ abstract class AbstractDriverTest extends \PHPUnit_Framework_TestCase
         return self::$expectedSchema = $schema;
     }
 
+    /**
+     * @param $description
+     * @return Field
+     */
     private function createIdField($description)
     {
         $field = new Field();
@@ -149,6 +159,10 @@ abstract class AbstractDriverTest extends \PHPUnit_Framework_TestCase
         return $field;
     }
 
+    /**
+     * @param $description
+     * @return Field
+     */
     private function createNameField($description)
     {
         $field = new Field();
@@ -160,6 +174,10 @@ abstract class AbstractDriverTest extends \PHPUnit_Framework_TestCase
         return $field;
     }
 
+    /**
+     * @param $description
+     * @return Field
+     */
     private function createFriendsField($description)
     {
         $field = new Field();
@@ -171,6 +189,9 @@ abstract class AbstractDriverTest extends \PHPUnit_Framework_TestCase
         return $field;
     }
 
+    /**
+     * @return Field
+     */
     private function createAppearsInField()
     {
         $field = new Field();

@@ -5,6 +5,7 @@ use Arthem\GraphQLMapper\Mapping\AbstractType;
 use Arthem\GraphQLMapper\Mapping\Field;
 use Arthem\GraphQLMapper\Mapping\FieldContainer;
 use Arthem\GraphQLMapper\Mapping\InterfaceType;
+use Arthem\GraphQLMapper\Mapping\Mutation;
 use Arthem\GraphQLMapper\Mapping\Query;
 use Arthem\GraphQLMapper\Mapping\SchemaContainer;
 use Arthem\GraphQLMapper\Mapping\Type;
@@ -69,7 +70,7 @@ class YamlDriver extends FileDriver
             $schemaContainer->setQuerySchema($querySchema);
         }
 
-        $this->populateFieldContainer($querySchema, $mapping);
+        $this->populateFieldContainer($querySchema, $mapping, true);
     }
 
     /**
@@ -80,7 +81,7 @@ class YamlDriver extends FileDriver
     {
         $mutationSchema = $schemaContainer->getMutationSchema();
         if (null === $mutationSchema) {
-            $mutationSchema = new Query();
+            $mutationSchema = new Mutation();
             $schemaContainer->setMutationSchema($mutationSchema);
         }
 
@@ -121,8 +122,11 @@ class YamlDriver extends FileDriver
         $type = new Type();
         $type
             ->setName($name)
-            ->setExtends(isset($mapping['extends']) ? $mapping['extends'] : null)
             ->setResolveConfig(isset($mapping['resolve']) ? $mapping['resolve'] : []);
+
+        if (!empty($mapping['interfaces'])) {
+            $type->setInterfaces((array) $mapping['interfaces']);
+        }
 
         if (isset($mapping['values'])) {
             $type->setValues($mapping['values']);
@@ -151,8 +155,9 @@ class YamlDriver extends FileDriver
     /**
      * @param FieldContainer $type
      * @param array          $mapping
+     * @param bool           $append
      */
-    private function populateFieldContainer(FieldContainer $type, array $mapping)
+    private function populateFieldContainer(FieldContainer $type, array $mapping, $append = false)
     {
         $this->populateType($type, $mapping);
 
@@ -164,7 +169,12 @@ class YamlDriver extends FileDriver
         foreach ($mapping['fields'] as $name => $fieldMapping) {
             $fields[] = $this->createField($name, $fieldMapping);
         }
-        $type->setFields($fields);
+
+        if ($append) {
+            $type->addFields($fields);
+        } else {
+            $type->setFields($fields);
+        }
     }
 
     /**
@@ -177,6 +187,10 @@ class YamlDriver extends FileDriver
         $interface = new InterfaceType();
         $interface->setName($name);
         $this->populateFieldContainer($interface, $mapping);
+
+        if (isset($mapping['model'])) {
+            $interface->setModel($mapping['model']);
+        }
 
         return $interface;
     }

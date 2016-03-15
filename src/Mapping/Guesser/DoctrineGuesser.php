@@ -1,9 +1,13 @@
 <?php
-namespace Arthem\GraphQLMapper\Mapping\Guess;
+namespace Arthem\GraphQLMapper\Mapping\Guesser;
 
 use Arthem\GraphQLMapper\Mapping\Context\ContainerContext;
 use Arthem\GraphQLMapper\Mapping\Context\FieldContext;
 use Arthem\GraphQLMapper\Mapping\Field;
+use Arthem\GraphQLMapper\Mapping\Guesser\Guess\Guess;
+use Arthem\GraphQLMapper\Mapping\Guesser\Guess\ResolveConfigGuess;
+use Arthem\GraphQLMapper\Mapping\Guesser\Guess\TypeGuess;
+use Arthem\GraphQLMapper\Mapping\InterfaceType;
 use Arthem\GraphQLMapper\Mapping\SchemaContainer;
 use Arthem\GraphQLMapper\Mapping\Type;
 use Doctrine\Common\Persistence\Mapping\ClassMetadataFactory;
@@ -12,7 +16,7 @@ use Doctrine\Common\Persistence\ObjectManager;
 use Doctrine\DBAL\Types\Type as DoctrineType;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
 
-class DoctrineGuesser implements TypeGuesserInterface, FieldGuesserInterface
+class DoctrineGuesser implements TypeResolveGuesserInterface, FieldResolveGuesserInterface, FieldTypeGuesserInterface
 {
     /**
      * @var ClassMetadataFactory
@@ -170,7 +174,7 @@ class DoctrineGuesser implements TypeGuesserInterface, FieldGuesserInterface
     private function isFieldContainerSupported(ContainerContext $containerContext)
     {
         $fieldContainer = $containerContext->getContainer();
-        if (!$fieldContainer instanceof Type) {
+        if (!$fieldContainer instanceof Type && !$fieldContainer instanceof InterfaceType) {
             return false;
         }
 

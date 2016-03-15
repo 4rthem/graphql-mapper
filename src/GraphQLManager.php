@@ -29,13 +29,16 @@ class GraphQLManager
     }
 
     /**
-     * @param string $requestString
+     * @param string      $requestString
+     * @param mixed       $rootValue
+     * @param array|null  $variableValues
+     * @param string|null $operationName
      * @return ExecutionResult
      */
-    public function query($requestString)
+    public function query($requestString, $rootValue = null, $variableValues = null, $operationName = null)
     {
         $schema = $this->getSchema();
-        $result = GraphQL::execute($schema, $requestString);
+        $result = GraphQL::execute($schema, $requestString, $rootValue, $variableValues, $operationName);
 
         if (is_array($result) && isset($result['errors'])) {
             throw new QueryException($result['errors']);

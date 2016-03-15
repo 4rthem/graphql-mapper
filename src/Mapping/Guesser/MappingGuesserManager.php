@@ -1,10 +1,16 @@
 <?php
 
-namespace Arthem\GraphQLMapper\Mapping\Guess;
+namespace Arthem\GraphQLMapper\Mapping\Guesser;
 
+use Arthem\GraphQLMapper\Mapping\AbstractType;
 use Arthem\GraphQLMapper\Mapping\Context\ContainerContext;
 use Arthem\GraphQLMapper\Mapping\Context\FieldContext;
+use Arthem\GraphQLMapper\Mapping\Field;
+use Arthem\GraphQLMapper\Mapping\Guesser\Guess\Guess;
+use Arthem\GraphQLMapper\Mapping\Guesser\Guess\ResolveConfigGuess;
+use Arthem\GraphQLMapper\Mapping\Guesser\Guess\TypeGuess;
 use Arthem\GraphQLMapper\Mapping\SchemaContainer;
+use Arthem\GraphQLMapper\Mapping\Type;
 
 class MappingGuesserManager
 {
@@ -18,10 +24,14 @@ class MappingGuesserManager
      */
     public function guess(SchemaContainer $schemaContainer)
     {
-        foreach ($schemaContainer->getTypes() as $type) {
-            $containerContext = new ContainerContext($type, $schemaContainer);
-            $this->guessFields($containerContext);
+        $fieldContainers = $schemaContainer->getTypes() + $schemaContainer->getInterfaces();
+        if (null !== $query = $schemaContainer->getQuerySchema()) {
+            $fieldContainers[] = $query;
+        }
 
+        foreach ($fieldContainers as $fieldContainer) {
+            $containerContext = new ContainerContext($fieldContainer, $schemaContainer);
+            $this->guessFields($containerContext);
             $this->guessTypeResolveConfig($containerContext);
         }
     }
@@ -50,7 +60,7 @@ class MappingGuesserManager
 
         $guesses = [];
         foreach ($this->guessers as $guesser) {
-            if ($guesser instanceof FieldGuesserInterface) {
+            if ($guesser instanceof FieldTypeGuesserInterface) {
                 $guess = $guesser->guessFieldType($fieldContext);
                 if (null !== $guess) {
                     $guesses[] = $guess;
@@ -72,7 +82,7 @@ class MappingGuesserManager
     {
         $guesses = [];
         foreach ($this->guessers as $guesser) {
-            if ($guesser instanceof TypeGuesserInterface) {
+            if ($guesser instanceof TypeResolveGuesserInterface) {
                 $guess = $guesser->guessTypeResolveConfig($containerContext);
                 if (null !== $guess) {
                     $guesses[] = $guess;
@@ -80,13 +90,7 @@ class MappingGuesserManager
             }
         }
 
-        /** @var ResolveConfigGuess $best */
-        $best = $this->getBestGuess($guesses);
-        if (null !== $best) {
-            $containerContext
-                ->getContainer()
-                ->mergeResolveConfig($best->getConfig());
-        }
+        $this->applyBestGuess($containerContext->getContainer(), $guesses);
     }
 
     /**
@@ -96,7 +100,7 @@ class MappingGuesserManager
     {
         $guesses = [];
         foreach ($this->guessers as $guesser) {
-            if ($guesser instanceof FieldGuesserInterface) {
+            if ($guesser instanceof FieldResolveGuesserInterface) {
                 $guess = $guesser->guessFieldResolveConfig($fieldContext);
                 if (null !== $guess) {
                     $guesses[] = $guess;
@@ -104,12 +108,19 @@ class MappingGuesserManager
             }
         }
 
+        $this->applyBestGuess($fieldContext->getField(), $guesses);
+    }
+
+    /**
+     * @param AbstractType|Type|Field $item
+     * @param array                   $guesses
+     */
+    private function applyBestGuess(AbstractType $item, array $guesses)
+    {
         /** @var ResolveConfigGuess $best */
         $best = $this->getBestGuess($guesses);
         if (null !== $best) {
-            $fieldContext
-                ->getField()
-                ->mergeResolveConfig($best->getConfig());
+            $item->mergeResolveConfig($best->getConfig());
         }
     }
 

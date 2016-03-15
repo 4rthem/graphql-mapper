@@ -32,7 +32,7 @@ types:
 
     Human:
         description: A humanoid creature in the Star Wars universe.
-        extends: Character
+        interfaces: Character
         fields:
             id:
                 type: String!
@@ -52,7 +52,7 @@ types:
 
     Droid:
         description: A mechanical creature in the Star Wars universe.
-        extends: Character
+        interfaces: Character
         fields:
             id:
                 type: String!
