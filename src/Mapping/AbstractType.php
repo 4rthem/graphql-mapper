@@ -79,7 +79,7 @@ abstract class AbstractType
     }
 
     /**
-     * @return array
+     * @return array<string,mixed>
      */
     public function toMapping()
     {

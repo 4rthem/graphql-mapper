@@ -27,6 +27,10 @@ abstract class SingletonResolver implements ResolverInterface
         return $this->callback;
     }
 
+    /**
+     * @param ResolveInfo $info
+     * @return array
+     */
     protected function getResolveConfig(ResolveInfo $info)
     {
         /** @var ObjectType $parentType */
@@ -39,6 +43,8 @@ abstract class SingletonResolver implements ResolverInterface
     }
 
     /**
+     * @param array $config
+     * @param Field $field
      * @return mixed
      */
     abstract protected function createFunction(array $config, Field $field);

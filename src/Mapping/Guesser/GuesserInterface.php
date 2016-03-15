@@ -1,6 +1,6 @@
 <?php
 
-namespace Arthem\GraphQLMapper\Mapping\Guess;
+namespace Arthem\GraphQLMapper\Mapping\Guesser;
 
 /**
  * Base interface for being a guesser

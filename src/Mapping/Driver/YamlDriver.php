@@ -5,6 +5,7 @@ use Arthem\GraphQLMapper\Mapping\AbstractType;
 use Arthem\GraphQLMapper\Mapping\Field;
 use Arthem\GraphQLMapper\Mapping\FieldContainer;
 use Arthem\GraphQLMapper\Mapping\InterfaceType;
+use Arthem\GraphQLMapper\Mapping\Mutation;
 use Arthem\GraphQLMapper\Mapping\Query;
 use Arthem\GraphQLMapper\Mapping\SchemaContainer;
 use Arthem\GraphQLMapper\Mapping\Type;
@@ -80,7 +81,7 @@ class YamlDriver extends FileDriver
     {
         $mutationSchema = $schemaContainer->getMutationSchema();
         if (null === $mutationSchema) {
-            $mutationSchema = new Query();
+            $mutationSchema = new Mutation();
             $schemaContainer->setMutationSchema($mutationSchema);
         }
 

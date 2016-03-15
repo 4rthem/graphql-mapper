@@ -19,7 +19,7 @@ class SchemaContainer
     private $querySchema;
 
     /**
-     * @var Query
+     * @var Mutation
      */
     private $mutationSchema;
 
@@ -54,6 +54,7 @@ class SchemaContainer
     }
 
     /**
+     * @param string $name
      * @return Type
      */
     public function getType($name)
@@ -62,6 +63,7 @@ class SchemaContainer
     }
 
     /**
+     * @param string $name
      * @return bool
      */
     public function hasType($name)
@@ -105,10 +107,10 @@ class SchemaContainer
     }
 
     /**
-     * @param Query $mutationSchema
+     * @param Mutation $mutationSchema
      * @return $this
      */
-    public function setMutationSchema(Query $mutationSchema)
+    public function setMutationSchema(Mutation $mutationSchema)
     {
         $this->mutationSchema = $mutationSchema;
 

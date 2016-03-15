@@ -1,10 +1,10 @@
 <?php
 
-namespace Arthem\GraphQLMapper\Mapping\Guess;
+namespace Arthem\GraphQLMapper\Mapping\Guesser;
 
 use Arthem\GraphQLMapper\Mapping\Context\ContainerContext;
 
-interface TypeGuesserInterface extends GuesserInterface
+interface TypeResolveGuesserInterface extends GuesserInterface
 {
     /**
      * @param ContainerContext $containerContext

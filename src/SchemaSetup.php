@@ -14,7 +14,9 @@ use Doctrine\Common\Persistence\ObjectManager;
 abstract class SchemaSetup
 {
     /**
-     * @param array $mappingPaths
+     * @param array         $mappingPaths
+     * @param ObjectManager $om
+     * @return SchemaFactory
      */
     public static function createDoctrineYamlSchemaFactory(array $mappingPaths, ObjectManager $om)
     {
@@ -24,6 +26,11 @@ abstract class SchemaSetup
         return self::createDoctrineSchemaFactory($driver, $om);
     }
 
+    /**
+     * @param DriverInterface $driver
+     * @param ObjectManager   $om
+     * @return SchemaFactory
+     */
     protected static function createDoctrineSchemaFactory(DriverInterface $driver, ObjectManager $om)
     {
         $schemaFactory = new SchemaFactory($driver, self::createTypeResolver());
@@ -33,6 +40,9 @@ abstract class SchemaSetup
         return $schemaFactory;
     }
 
+    /**
+     * @return TypeResolver
+     */
     protected static function createTypeResolver()
     {
         $typeResolver = new TypeResolver();
