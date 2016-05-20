@@ -7,6 +7,8 @@
 This library allows to build a GraphQL schema based on your model.
 It depends on the [GraphQL PHP implementation](https://github.com/webonyx/graphql-php)
 
+See [graphql-mapper-demo](https://github.com/4rthem/graphql-mapper-demo) for a full working example!
+
 ## Installation
 
 This is installable via [Composer](https://getcomposer.org/) as [arthem/graphql-mapper](https://packagist.org/packages/arthem/graphql-mapper):
@@ -155,6 +157,7 @@ mutation:
 // entry.php
 use Arthem\GraphQLMapper\GraphQLManager;
 use Arthem\GraphQLMapper\SchemaSetup;
+use Arthem\GraphQLMapper\Exception\QueryException;
 
 // bootstrap.php
 require_once '../vendor/autoload.php';
@@ -167,7 +170,12 @@ $paths          = ['/path/to/your/mapping/file.yml'];
 $schemaFactory  = SchemaSetup::createDoctrineYamlSchemaFactory($paths, $entityManager);
 $graphQLManager = new GraphQLManager($schemaFactory);
 
-$data = $graphQLManager->query($_POST['query']);
+try {
+    $data = $graphQLManager->query($_POST['query']);
+    echo json_encode($data);
+} catch (QueryException $e) {
+    echo json_encode($e);
+}
 ```
 
 Ready to query:
