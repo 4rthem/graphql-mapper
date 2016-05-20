@@ -13,14 +13,14 @@
 >
     <testsuites>
         <testsuite name="arthem/graphql-mapper Test Suite">
-            <directory>./tests/</directory>
+            <directory>tests</directory>
         </testsuite>
     </testsuites>
 
     <filter>
-        <exclude>
-            <directory>./vendor</directory>
-        </exclude>
+        <whitelist>
+            <directory>src</directory>
+        </whitelist>
     </filter>
 
     <php>

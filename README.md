@@ -175,14 +175,14 @@ Ready to query:
 
 ```bash
 curl -XPOST 'http://localhost/entry.php' -d 'query=query FooBar {
-    luke: hero(episode: 5) {
+    luke: hero(episode: EMPIRE) {
         id,
         name,
         friends {
             id, name
         }
     },
-    droid(id: 2) {
+    droid(id: "2001") {
         primaryFunction
     }
 }'
