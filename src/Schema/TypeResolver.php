@@ -60,4 +60,15 @@ class TypeResolver
 
         return $this;
     }
+
+    /**
+     * @param string $name
+     * @return Type|null
+     */
+    public function getType($name)
+    {
+        if (isset($this->types[$name])) {
+            return $this->types[$name];
+        }
+    }
 }

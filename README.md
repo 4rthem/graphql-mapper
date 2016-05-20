@@ -25,13 +25,16 @@ Create your schema:
 
 interfaces:
     Character:
+        resolve:
+            handler: doctrine
+        model: AppBundle\Entity\Character
         description: A character in the Star Wars Trilogy
         fields:
             id:
-                type: String!
+                type: Int!
                 description: The id of the character.
             name:
-                type: String
+                type: String!
                 description: The name of the character.
             friends:
                 type: "[Character]"
@@ -55,14 +58,15 @@ types:
                 description: Released in 1983.
 
     Human:
+        resolve:
+            handler: doctrine
+        model: AppBundle\Entity\Human
         description: A humanoid creature in the Star Wars universe.
-        extends: Character
+        interfaces: Character
         fields:
             id:
-                type: String!
                 description: The id of the human.
             name:
-                type: String
                 description: The name of the human.
             friends:
                 type: "[Character]"
@@ -71,18 +75,18 @@ types:
                 type: "[Episode]"
                 description: Which movies they appear in.
             homePlanet:
-                type: String
                 description: The home planet of the human, or null if unknown.
 
     Droid:
+        resolve:
+            handler: doctrine
+        model: AppBundle\Entity\Droid
         description: A mechanical creature in the Star Wars universe.
-        extends: Character
+        interfaces: Character
         fields:
             id:
-                type: String!
                 description: The id of the droid.
             name:
-                type: String
                 description: The name of the droid.
             friends:
                 type: "[Character]"
@@ -91,13 +95,13 @@ types:
                 type: "[Episode]"
                 description: Which movies they appear in.
             primaryFunction:
-                type: String
                 description: The primary function of the droid.
-
 
 query:
     fields:
         hero:
+            resolve:
+                method: getHero
             type: Character
             args:
                 episode:
@@ -120,7 +124,7 @@ query:
             description: The current time
             resolve:
                 function: getdate
-                no_args: true # no context arguments will be passed to the function
+                no_args: true
 
 mutation:
     fields:
@@ -129,18 +133,19 @@ mutation:
             resolve:
                 method: createDroid
             args:
+                id:
+                    type: Int!
+                    description: The id of the droid.
                 name:
-                    type: String
+                    type: String!
                     description: The name of the droid.
-                friends:
-                    type: "[Character]"
-                    description: The friends of the droid.
-                appearsIn:
-                    type: "[Episode]"
-                    description: Which movies they appear in.
                 primaryFunction:
                     type: String
                     description: The primary function of the droid.
+                appearsIn:
+                    type: "[Episode]"
+                    description: Which movies they appear in.
+
 ```
 
 > NB: listOf types must be wrapped by quotes `type: "[User]"`
@@ -170,7 +175,7 @@ Ready to query:
 
 ```bash
 curl -XPOST 'http://localhost/entry.php' -d 'query=query FooBar {
-    luke: hero(id: 1) {
+    luke: hero(episode: 5) {
         id,
         name,
         friends {
@@ -199,6 +204,10 @@ Then register it to the `SchemaFactory`:
 $schemaFactory  = SchemaSetup::createDoctrineYamlSchemaFactory($paths, $entityManager);
 $schemaFactory->addResolver(new CustomResolver());
 ```
+
+## Custom Guesser
+
+TODOC
 
 ## License
 

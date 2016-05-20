@@ -7,6 +7,7 @@ use Arthem\GraphQLMapper\Mapping\Context\ContainerContext;
 use Arthem\GraphQLMapper\Mapping\Context\FieldContext;
 use Arthem\GraphQLMapper\Mapping\Field;
 use Arthem\GraphQLMapper\Mapping\Guesser\Guess\Guess;
+use Arthem\GraphQLMapper\Mapping\Guesser\Guess\ResolveConfigGuess;
 use Arthem\GraphQLMapper\Mapping\Guesser\Guess\TypeGuess;
 use Arthem\GraphQLMapper\Mapping\SchemaContainer;
 use Arthem\GraphQLMapper\Mapping\Type;
@@ -23,7 +24,7 @@ class MappingGuesserManager
      */
     public function guess(SchemaContainer $schemaContainer)
     {
-        $fieldContainers = $schemaContainer->getTypes();
+        $fieldContainers = $schemaContainer->getTypes() + $schemaContainer->getInterfaces();
         if (null !== $query = $schemaContainer->getQuerySchema()) {
             $fieldContainers[] = $query;
         }

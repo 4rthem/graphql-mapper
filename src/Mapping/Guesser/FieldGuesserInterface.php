@@ -3,6 +3,7 @@
 namespace Arthem\GraphQLMapper\Mapping\Guesser;
 
 use Arthem\GraphQLMapper\Mapping\Context\FieldContext;
+use Arthem\GraphQLMapper\Mapping\Guesser\Guess\ResolveConfigGuess;
 use Arthem\GraphQLMapper\Mapping\Guesser\Guess\TypeGuess;
 
 interface FieldGuesserInterface extends GuesserInterface

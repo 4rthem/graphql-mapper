@@ -90,6 +90,10 @@ class Field extends AbstractType
      */
     public function setResolvedType($resolvedType)
     {
+        if (!is_callable($resolvedType) && !$resolvedType instanceof GQLType) {
+            throw new \RuntimeException(sprintf('Invalid $resolvedType, got "%s"', gettype($resolvedType)));
+        }
+
         $this->resolvedType = $resolvedType;
 
         return $this;

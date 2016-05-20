@@ -17,11 +17,11 @@
     ],
     "require": {
         "php": ">=5.4",
-        "webonyx/graphql-php": "^0.5.0"
+        "webonyx/graphql-php": ">=0.5.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "~4.8",
-        "squizlabs/php_codesniffer": "^2.5"
+        "phpunit/phpunit": "^4.8",
+        "squizlabs/php_codesniffer": "^2.6.0"
     },
     "suggest": {
         "doctrine/orm": "Use the Doctrine resolver"
@@ -30,9 +30,9 @@
         "bin-dir": "bin"
     },
     "autoload": {
-        "classmap": [
-            "src/"
-        ]
+        "psr-4": {
+            "Arthem\\GraphQLMapper\\": "src/"
+        }
     },
     "autoload-dev": {
         "psr-4": {"Arthem\\GraphQLMapper\\Test\\": "tests/"}

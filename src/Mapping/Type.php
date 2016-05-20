@@ -5,9 +5,9 @@ namespace Arthem\GraphQLMapper\Mapping;
 class Type extends FieldContainer
 {
     /**
-     * @var string
+     * @var array
      */
-    private $extends;
+    private $interfaces = [];
 
     /**
      * @var array
@@ -15,20 +15,20 @@ class Type extends FieldContainer
     private $values;
 
     /**
-     * @return string
+     * @return array
      */
-    public function getExtends()
+    public function getInterfaces()
     {
-        return $this->extends;
+        return $this->interfaces;
     }
 
     /**
-     * @param string $extends
+     * @param array $interfaces
      * @return $this
      */
-    public function setExtends($extends)
+    public function setInterfaces(array $interfaces)
     {
-        $this->extends = $extends;
+        $this->interfaces = $interfaces;
 
         return $this;
     }
@@ -60,8 +60,12 @@ class Type extends FieldContainer
     {
         $mapping = parent::toMapping();
 
-        $mapping['extends'] = $this->extends;
-        $mapping['values']  = $this->values;
+        if ($this->interfaces) {
+            $mapping['interfaces'] = $this->interfaces;
+        }
+        if ($this->values) {
+            $mapping['values'] = $this->values;
+        }
 
         return $mapping;
     }

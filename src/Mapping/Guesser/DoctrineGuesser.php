@@ -5,7 +5,9 @@ use Arthem\GraphQLMapper\Mapping\Context\ContainerContext;
 use Arthem\GraphQLMapper\Mapping\Context\FieldContext;
 use Arthem\GraphQLMapper\Mapping\Field;
 use Arthem\GraphQLMapper\Mapping\Guesser\Guess\Guess;
+use Arthem\GraphQLMapper\Mapping\Guesser\Guess\ResolveConfigGuess;
 use Arthem\GraphQLMapper\Mapping\Guesser\Guess\TypeGuess;
+use Arthem\GraphQLMapper\Mapping\InterfaceType;
 use Arthem\GraphQLMapper\Mapping\SchemaContainer;
 use Arthem\GraphQLMapper\Mapping\Type;
 use Doctrine\Common\Persistence\Mapping\ClassMetadataFactory;
@@ -172,7 +174,7 @@ class DoctrineGuesser implements TypeResolveGuesserInterface, FieldResolveGuesse
     private function isFieldContainerSupported(ContainerContext $containerContext)
     {
         $fieldContainer = $containerContext->getContainer();
-        if (!$fieldContainer instanceof Type) {
+        if (!$fieldContainer instanceof Type && !$fieldContainer instanceof InterfaceType) {
             return false;
         }
 

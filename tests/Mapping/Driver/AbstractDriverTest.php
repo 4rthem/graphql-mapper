@@ -71,7 +71,7 @@ abstract class AbstractDriverTest extends \PHPUnit_Framework_TestCase
         $humanType = new Type();
         $humanType->setName('Human')
             ->setDescription('A humanoid creature in the Star Wars universe.')
-            ->setExtends('Character')
+            ->setInterfaces(['Character'])
             ->setFields([
                 $this->createIdField('The id of the human.'),
                 $this->createNameField('The name of the human.'),
@@ -89,7 +89,7 @@ abstract class AbstractDriverTest extends \PHPUnit_Framework_TestCase
         $droidType = new Type();
         $droidType->setName('Droid')
             ->setDescription('A mechanical creature in the Star Wars universe.')
-            ->setExtends('Character')
+            ->setInterfaces(['Character'])
             ->setFields([
                 $this->createIdField('The id of the droid.'),
                 $this->createNameField('The name of the droid.'),

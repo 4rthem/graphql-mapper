@@ -5,6 +5,10 @@ namespace Arthem\GraphQLMapper;
 use Arthem\GraphQLMapper\Mapping\Driver\DefaultFilePathAccessor;
 use Arthem\GraphQLMapper\Mapping\Driver\DriverInterface;
 use Arthem\GraphQLMapper\Mapping\Driver\YamlDriver;
+use Arthem\GraphQLMapper\Mapping\Guesser\CallableGuesser;
+use Arthem\GraphQLMapper\Mapping\Guesser\DoctrineGuesser;
+use Arthem\GraphQLMapper\Mapping\Guesser\MappingGuesserManager;
+use Arthem\GraphQLMapper\Mapping\Guesser\PropertyGuesser;
 use Arthem\GraphQLMapper\Schema\Resolve\DoctrineResolver;
 use Arthem\GraphQLMapper\Schema\Resolve\PropertyResolver;
 use Arthem\GraphQLMapper\Schema\SchemaFactory;
@@ -27,13 +31,28 @@ abstract class SchemaSetup
     }
 
     /**
+     * @return MappingGuesserManager
+     */
+    protected static function createDefaultMappingGuesserManager()
+    {
+        $mappingGuesser = new MappingGuesserManager();
+        $mappingGuesser->addGuesser(new CallableGuesser());
+        $mappingGuesser->addGuesser(new PropertyGuesser());
+
+        return $mappingGuesser;
+    }
+
+    /**
      * @param DriverInterface $driver
      * @param ObjectManager   $om
      * @return SchemaFactory
      */
     protected static function createDoctrineSchemaFactory(DriverInterface $driver, ObjectManager $om)
     {
-        $schemaFactory = new SchemaFactory($driver, self::createTypeResolver());
+        $mappingGuesser = self::createDefaultMappingGuesserManager();
+        $mappingGuesser->addGuesser(new DoctrineGuesser($om));
+
+        $schemaFactory = new SchemaFactory($driver, self::createTypeResolver(), $mappingGuesser);
         $schemaFactory->addResolver(new PropertyResolver());
         $schemaFactory->addResolver(new DoctrineResolver($om));
 

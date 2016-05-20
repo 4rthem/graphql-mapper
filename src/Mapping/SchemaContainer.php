@@ -64,11 +64,29 @@ class SchemaContainer
 
     /**
      * @param string $name
+     * @return InterfaceType
+     */
+    public function getInterface($name)
+    {
+        return $this->interfaces[$name];
+    }
+
+    /**
+     * @param string $name
      * @return bool
      */
     public function hasType($name)
     {
         return isset($this->types[$name]);
+    }
+
+    /**
+     * @param string $name
+     * @return bool
+     */
+    public function hasInterface($name)
+    {
+        return isset($this->interfaces[$name]);
     }
 
     /**
@@ -99,7 +117,7 @@ class SchemaContainer
     }
 
     /**
-     * @return Query
+     * @return Mutation
      */
     public function getMutationSchema()
     {

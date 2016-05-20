@@ -10,12 +10,12 @@ class TypeGuess extends Guess
     private $type;
 
     /**
-     * @param string $type
+     * @param string $resolveType
      * @param int    $confidence
      */
-    public function __construct($type, $confidence = self::LOW_CONFIDENCE)
+    public function __construct($resolveType, $confidence = self::LOW_CONFIDENCE)
     {
-        $this->type = $type;
+        $this->type = $resolveType;
         parent::__construct($confidence);
     }
 

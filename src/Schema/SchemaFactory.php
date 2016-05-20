@@ -11,6 +11,7 @@ use Arthem\GraphQLMapper\Mapping\Guesser\MappingGuesserManager;
 use Arthem\GraphQLMapper\Mapping\InterfaceType;
 use Arthem\GraphQLMapper\Mapping\MappingNormalizer;
 use Arthem\GraphQLMapper\Mapping\SchemaContainer;
+use Arthem\GraphQLMapper\Mapping\Type;
 use Arthem\GraphQLMapper\Schema\Resolve\CallableResolver;
 use Arthem\GraphQLMapper\Schema\Resolve\ResolverInterface;
 use GraphQL\Schema;
@@ -85,9 +86,9 @@ class SchemaFactory
     {
         $schemaContainer = $this->getSchemaContainer();
 
-        foreach ($schemaContainer->getInterfaces() as $type) {
-            $GQLType = $this->createInterface($type);
-            $this->typeResolver->addType($type->getName(), $GQLType);
+        foreach ($schemaContainer->getInterfaces() as $interface) {
+            $GQLType = $this->createInterface($interface);
+            $this->typeResolver->addType($interface->getName(), $GQLType);
         }
 
         foreach ($schemaContainer->getTypes() as $type) {
@@ -130,6 +131,8 @@ class SchemaFactory
         }
         $this->normalizer->normalize($schemaContainer);
 
+        $this->defineInteracesChildren($schemaContainer);
+
         if (null !== $this->cacheDriver) {
             $this->cacheDriver->save($schemaContainer);
         }
@@ -138,17 +141,48 @@ class SchemaFactory
     }
 
     /**
-     * @param InterfaceType $type
+     * @param SchemaContainer $schemaContainer
+     */
+    private function defineInteracesChildren(SchemaContainer $schemaContainer)
+    {
+        foreach ($schemaContainer->getTypes() as $type) {
+            if (null === $type->getModel()) {
+                continue;
+            }
+
+            foreach ($type->getInterfaces() as $interfaceName) {
+                $interface = $schemaContainer->getInterface($interfaceName);
+                $interface->setChildClass($type->getName(), $type->getModel());
+            }
+        }
+    }
+
+    /**
+     * @param InterfaceType $interface
      * @return GQLDefinition\InterfaceType
      */
-    private function createInterface(InterfaceType $type)
+    private function createInterface(InterfaceType $interface)
     {
-        if (null !== $type->getFields()) {
-            $this->prepareFields($type->getFields(), $type);
+        if (null !== $interface->getFields()) {
+            $this->prepareFields($interface->getFields(), $interface);
         }
-        $type = new GQLDefinition\InterfaceType($type->toMapping());
 
-        return $type;
+        $mapping = $interface->getChildrenClassMapping();
+
+        if (!empty($mapping)) {
+            $resolveType = function ($object) use ($mapping) {
+                foreach ($mapping as $class => $typeName) {
+                    if ($object instanceof $class) {
+                        return $this->typeResolver->getType($typeName);
+                    }
+                }
+            };
+            $interface->setResolveType($resolveType);
+        }
+
+        $interface = new GQLDefinition\InterfaceType($interface->toMapping());
+
+        return $interface;
     }
 
     /**
@@ -159,6 +193,10 @@ class SchemaFactory
     {
         if (null !== $type->getFields()) {
             $this->prepareFields($type->getFields(), $type);
+        }
+
+        if ($type instanceof Type) {
+            $this->resolveInterfaces($type);
         }
 
         $internalType = $type->getInternalType();
@@ -174,7 +212,17 @@ class SchemaFactory
     }
 
     /**
-     * @param Field[]                $fields
+     * @param Type $type
+     */
+    private function resolveInterfaces(Type $type)
+    {
+        foreach ($type->getInterfaces() as &$interface) {
+            $interface = $this->typeResolver->getType($interface);
+        }
+    }
+
+    /**
+     * @param Field[]                             $fields
      * @param AbstractType|FieldContainer[]|Field $parent
      */
     private function prepareFields(array $fields, AbstractType $parent)
@@ -188,11 +236,15 @@ class SchemaFactory
 
             $typeName = $field->getType();
             if (empty($typeName)) {
-                throw new \InvalidArgumentException(sprintf('Missing type for field "%s" in "%s"', $field->getName(), $parent->getName()));
+                throw new \InvalidArgumentException(
+                    sprintf('Missing type for field "%s" in "%s"', $field->getName(), $parent->getName())
+                );
             }
-            $field->setResolvedType(function () use ($typeName) {
-                return $this->typeResolver->resolveType($typeName);
-            });
+            $field->setResolvedType(
+                function () use ($typeName) {
+                    return $this->typeResolver->resolveType($typeName);
+                }
+            );
         }
     }
 

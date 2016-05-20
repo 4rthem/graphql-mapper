@@ -64,13 +64,17 @@ class MappingNormalizer
     {
         $typeName = TypeParser::getFinalType($field->getType());
 
-        if (!$schemaContainer->hasType($typeName)) {
+        if ($schemaContainer->hasType($typeName)) {
+            $typeConfig = $schemaContainer
+                ->getType($typeName)
+                ->getResolveConfig();
+        } elseif ($schemaContainer->hasInterface($typeName)) {
+            $typeConfig = $schemaContainer
+                ->getInterface($typeName)
+                ->getResolveConfig();
+        } else {
             return;
         }
-
-        $typeConfig = $schemaContainer
-            ->getType($typeName)
-            ->getResolveConfig();
 
         $field->mergeResolveConfig($typeConfig);
     }
