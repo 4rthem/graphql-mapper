@@ -1,9 +1,8 @@
 # GraphQL Mapper
 
+[![Build Status](https://travis-ci.org/4rthem/graphql-mapper.svg?branch=master)](https://travis-ci.org/4rthem/graphql-mapper)
 [![SensioLabsInsight](https://insight.sensiolabs.com/projects/18bf298d-a139-4185-afdb-9226dfd2dc8c/mini.png)](https://insight.sensiolabs.com/projects/18bf298d-a139-4185-afdb-9226dfd2dc8c)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/4rthem/graphql-mapper/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/4rthem/graphql-mapper/?branch=master)
-
-### Work in progress.
 
 This library allows to build a GraphQL schema based on your model.
 It depends on the [GraphQL PHP implementation](https://github.com/webonyx/graphql-php)
