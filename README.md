@@ -1,4 +1,4 @@
-# GraphQL Mapper
+# [ABANDONED] GraphQL Mapper
 
 [![Build Status](https://travis-ci.org/4rthem/graphql-mapper.svg?branch=master)](https://travis-ci.org/4rthem/graphql-mapper)
 [![SensioLabsInsight](https://insight.sensiolabs.com/projects/18bf298d-a139-4185-afdb-9226dfd2dc8c/mini.png)](https://insight.sensiolabs.com/projects/18bf298d-a139-4185-afdb-9226dfd2dc8c)
